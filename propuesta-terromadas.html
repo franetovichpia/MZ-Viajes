@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propuesta web | Terromadas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;700;800&display=swap');
+:root{--ink:#243f3c;--orange:#ed743d;--cream:#faf8f3;--sage:#f0f2ea;--muted:#5f6e68;--line:#dfe3d8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.65 'DM Sans',sans-serif}
+h1,h2,h3{font-family:'Manrope',sans-serif;margin:0;line-height:1.15;letter-spacing:-.02em}
+p{margin:0}
+a{color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px}
+section{padding:64px 0}
+.alt{background:var(--sage)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b45c36;margin-bottom:12px}
+h2{font-size:clamp(28px,4vw,40px);margin-bottom:14px}
+.lead{color:var(--muted);max-width:640px;margin-bottom:34px}
+/* hero */
+.hero{background:var(--ink);color:#fff;padding:72px 0 64px}
+.hero h1{font-size:clamp(36px,6vw,62px);font-weight:800;max-width:760px}
+.hero h1 em{font-family:Georgia,serif;font-weight:400;color:#ffd9b0}
+.hero p{max-width:600px;margin:22px 0 28px;color:#e4ece8;font-size:18px}
+.tag{display:inline-block;border:1px solid #ffffff55;border-radius:30px;padding:6px 14px;font-size:13px;margin:0 8px 8px 0;color:#e4ece8}
+/* grids */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:24px}
+.card h3{font-size:19px;margin-bottom:8px}
+.card p{color:var(--muted);font-size:15px}
+.num{width:34px;height:34px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:700;margin-bottom:14px}
+/* plans */
+.plan{display:flex;flex-direction:column}
+.plan.best{border:2px solid var(--orange);position:relative}
+.badge{position:absolute;top:-13px;left:20px;background:var(--orange);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
+.price{font-family:'Manrope',sans-serif;font-size:40px;font-weight:800;margin:6px 0 2px}
+.price small{font-size:15px;font-weight:600;color:var(--muted)}
+.plan ul{list-style:none;padding:0;margin:16px 0 0;font-size:15px}
+.plan li{padding:7px 0 7px 26px;position:relative;border-top:1px solid var(--line)}
+.plan li:before{content:"✓";position:absolute;left:0;color:var(--orange);font-weight:700}
+.plan li.off{color:#9aa5a0}.plan li.off:before{content:"–";color:#9aa5a0}
+.note{font-size:14px;color:var(--muted);margin-top:22px}
+/* mock */
+.mock{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mock-bar{background:var(--ink);color:#fff;padding:10px 16px;font-size:13px;display:flex;justify-content:space-between}
+.mock-body{padding:18px;display:grid;gap:12px}
+.pkg{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px}
+.pkg i{width:54px;height:54px;border-radius:6px;background:linear-gradient(135deg,#75bcb8,#ffc392);flex:none}
+.pkg b{display:block;font-size:14px}.pkg span{font-size:13px;color:var(--muted)}
+.pkg em{margin-left:auto;font-style:normal;font-size:11px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:12px;white-space:nowrap}
+.wa{background:#25a244;color:#fff;border-radius:8px;padding:12px;font-size:14px;text-align:center;font-weight:600}
+/* table */
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px}
+td,th{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--ink);color:#fff;font-weight:600}
+tr:last-child td{border-bottom:0}
+.btn{display:inline-block;background:var(--orange);color:#fff;font-weight:700;padding:15px 26px;border-radius:8px;text-decoration:none}
+footer{background:var(--ink);color:#cfdad5;padding:36px 0;font-size:14px}
+@media print{.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}section{padding:36px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow" style="color:#ffc392">Propuesta · Octubre 2026</div>
+    <h1>La vidriera de <em>Terromadas</em>, abierta las 24 horas</h1>
+    <p>Una página web simple donde vos cargás tus paquetes y ofertas en minutos, y tus clientes eligen y te escriben directo por WhatsApp. Sin depender de nadie y sin gastar de más.</p>
+    <span class="tag">Hecha a tu medida</span><span class="tag">Fácil de actualizar</span><span class="tag">Costos mínimos</span>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">El punto de partida</div>
+    <h2>Ya tenés lo más difícil: una comunidad</h2>
+    <p class="lead">Terromadas tiene <strong>1.066 seguidores</strong> que confían en tu forma de viajar. Hoy esa gente te encuentra por Instagram, pero las ofertas se pierden entre los posteos y cada consulta arranca de cero. La web ordena todo en un solo lugar.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Todo en un solo link</h3><p>Un enlace en tu bio con todos los paquetes vigentes, con fotos, fechas y precios claros.</p></div>
+      <div class="card"><h3>Menos mensajes repetidos</h3><p>El cliente ve qué incluye, cuánto sale y cuándo viaja antes de escribirte. Te llegan consultas más calientes.</p></div>
+      <div class="card"><h3>Te encuentran más</h3><p>Aparecés en Google cuando buscan viajes y destinos, no solo cuando alguien entra a tu perfil.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Qué vas a tener</div>
+    <h2>Dos lados: el de tus clientes y el tuyo</h2>
+    <p class="lead">Una parte pública, linda y rápida desde el celular, y un panel privado para que administres todo vos sola.</p>
+    <div class="grid g2">
+      <div class="mock">
+        <div class="mock-bar"><span>terromadas.com.ar</span><span>Lo que ve el cliente</span></div>
+        <div class="mock-body">
+          <div class="pkg"><i></i><div><b>Bariloche · 7 noches</b><span>Salida 12/12 · Aéreo + hotel</span></div><em>OFERTA</em></div>
+          <div class="pkg"><i></i><div><b>Cataratas del Iguazú</b><span>4 días · Bus + hotel</span></div></div>
+          <div class="pkg"><i></i><div><b>Escapada a Colonia</b><span>3 días · Bus + alojamiento</span></div></div>
+          <div class="wa">Consultar este paquete por WhatsApp</div>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="mock-bar"><span>Panel de Terromadas</span><span>Lo que ves vos</span></div>
+        <div class="mock-body">
+          <div class="pkg"><i style="background:#243f3c"></i><div><b>+ Nuevo paquete</b><span>Foto, destino, fechas, precio, qué incluye</span></div></div>
+          <div class="pkg"><i style="background:#ed743d"></i><div><b>Marcar como oferta</b><span>Con fecha de vencimiento automática</span></div></div>
+          <div class="pkg"><i style="background:#72807a"></i><div><b>Pausar / agotar cupos</b><span>Sin borrar nada</span></div></div>
+          <div class="wa" style="background:var(--ink)">Editar desde el celular o la compu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Cómo funciona</div>
+    <h2>Del scroll a tu WhatsApp en 3 pasos</h2>
+    <p class="lead">El cliente nunca se pierde: cada paquete tiene su botón de consulta con el mensaje ya armado.</p>
+    <div class="grid g3">
+      <div class="card"><div class="num">1</div><h3>Elige</h3><p>Filtra por destino, tipo de viaje, fecha o precio, y abre el paquete que le interesa.</p></div>
+      <div class="card"><div class="num">2</div><h3>Selecciona</h3><p>Indica fecha y cantidad de pasajeros. Puede guardar varios paquetes y consultarlos juntos.</p></div>
+      <div class="card"><div class="num">3</div><h3>Te escribe</h3><p>Se abre tu WhatsApp con el paquete, las fechas y las personas ya cargadas. También puede dejar su consulta por mail.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Inversión</div>
+    <h2>Tres opciones, sin letra chica</h2>
+    <p class="lead">Todas incluyen el panel para que subas tus propios paquetes. Elegí según cuánto quieras crecer ahora: siempre podés pasar al siguiente plan más adelante sin rehacer nada.</p>
+    <div class="grid g3">
+      <div class="card plan">
+        <h3>Inicio</h3>
+        <p>Para arrancar ya, con lo esencial.</p>
+        <div class="price">USD 180 <small>pago único</small></div>
+        <ul>
+          <li>Web de hasta 5 secciones</li>
+          <li>Panel para subir paquetes con fotos</li>
+          <li>Botón de WhatsApp por paquete</li>
+          <li>Carga inicial de 8 paquetes</li>
+          <li>Dominio .com.ar y hosting 1er año</li>
+          <li class="off">Ofertas con vencimiento</li>
+          <li class="off">Filtros y buscador</li>
+        </ul>
+      </div>
+      <div class="card plan best">
+        <span class="badge">Recomendado</span>
+        <h3>Completo</h3>
+        <p>La que mejor le sirve a una agencia que ya vende por redes.</p>
+        <div class="price">USD 290 <small>pago único</small></div>
+        <ul>
+          <li>Todo lo de Inicio</li>
+          <li>Sección de ofertas con vencimiento</li>
+          <li>Filtros por destino, fecha y precio</li>
+          <li>Selección de varios paquetes y consulta conjunta</li>
+          <li>Link individual por paquete para historias</li>
+          <li>Aparecés en Google (posicionamiento básico)</li>
+          <li>Capacitación de 1 hora para usar el panel</li>
+        </ul>
+      </div>
+      <div class="card plan">
+        <h3>Pro</h3>
+        <p>Para vender y cobrar señas online.</p>
+        <div class="price">USD 430 <small>pago único</small></div>
+        <ul>
+          <li>Todo lo de Completo</li>
+          <li>Seña online con Mercado Pago</li>
+          <li>Sección de destinos / blog de viajes</li>
+          <li>Suscripción a novedades por mail</li>
+          <li>Estadísticas de visitas y consultas</li>
+          <li>Carga inicial de 25 paquetes</li>
+          <li>3 meses de soporte incluidos</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note"><strong>Para que no pese en la caja:</strong> se paga 50% al empezar y 50% al publicar, o en 3 cuotas sin interés en el plan Completo y Pro. Los precios están en dólares y se abonan en pesos al valor del día.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Costos después</div>
+    <h2>Lo que pagás para mantenerla</h2>
+    <p class="lead">No hay mensualidades obligatorias. Una vez publicada, la web es tuya.</p>
+    <table>
+      <tr><th>Concepto</th><th>Costo</th></tr>
+      <tr><td>Dominio .com.ar + hosting, primer año</td><td>Incluido</td></tr>
+      <tr><td>Renovación de dominio y hosting (desde el 2º año)</td><td>Aprox. USD 30 por año</td></tr>
+      <tr><td>Soporte mensual opcional (cambios, ajustes, ayuda)</td><td>USD 12 por mes, cuando lo necesites</td></tr>
+      <tr><td>Cargar paquetes y ofertas vos misma</td><td>Sin costo, todas las veces que quieras</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Tiempos</div>
+    <h2>En 3 semanas, online</h2>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="num">1</div><h3>Semana 1</h3><p>Me pasás logo, fotos, colores y 8 paquetes. Armo el diseño y te muestro cómo va quedando.</p></div>
+      <div class="card"><div class="num">2</div><h3>Semana 2</h3><p>Dejo funcionando el panel y la carga de paquetes. Ajustamos juntas lo que haga falta.</p></div>
+      <div class="card"><div class="num">3</div><h3>Semana 3</h3><p>Capacitación, publicación y link nuevo en tu bio de Instagram.</p></div>
+    </div>
+    <p class="note">Qué necesito de vos: logo (si tenés), fotos de tus viajes, textos de los paquetes y tu número de WhatsApp.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="text-align:center">
+    <h2>¿Arrancamos?</h2>
+    <p class="lead" style="margin:0 auto 26px">Propuesta válida hasta el 31 de octubre de 2026. Si querés ajustar algo (más paquetes, otra forma de pago, un plan intermedio) lo armamos a tu medida.</p>
+    <a class="btn" href="https://wa.me/549XXXXXXXXXX?text=Hola!%20Me%20interesa%20la%20propuesta%20web%20para%20Terromadas">Quiero mi web</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">MZ Viajes · Propuesta preparada para Terromadas · Los valores pueden ajustarse según lo que necesites.</div>
+</footer>
+
+</body>
+</html>
