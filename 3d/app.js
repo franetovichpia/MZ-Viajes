@@ -177,7 +177,7 @@ function fuselageTexture() {
   g.fillStyle = 'rgba(255,255,255,.92)'; g.font = '600 58px Inter, Helvetica, Arial, sans-serif';
   g.textAlign = 'center'; g.textBaseline = 'middle';
   if ('letterSpacing' in g) g.letterSpacing = '14px';
-  g.fillText('HORIZONTE VIAJES', 0, 0); g.restore();
+  g.fillText('AGENCIA HORIZONTE', 0, 0); g.restore();
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.offset.x = 0.5; t.anisotropy = 8;
   return t;
