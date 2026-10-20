@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MZ Surf Trips | Viajes de surf</title>
+<meta name="description" content="Viajes de surf en grupo y a medida desde Argentina. Olas, alojamiento, clases y traslados con MZ Viajes, Mar de Ajó.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#243f3c;--orange:#ed743d;--cream:#faf8f3;--sand:#f1e8d8;--muted:#72807a;--sea:#2f6f73}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.6 'DM Sans',sans-serif}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:'Manrope','DM Sans',sans-serif;line-height:1.1;letter-spacing:-.03em;font-weight:600}
+a{color:inherit;text-decoration:none}
+img{display:block;width:100%;height:100%;object-fit:cover}
+em{font-family:Georgia,serif;font-weight:400}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.wrap{width:min(1160px,100% - 32px);margin-inline:auto}
+section{padding:96px 0}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#b45c36;margin-bottom:16px}
+h2{font-size:clamp(32px,4.4vw,52px)}
+.lead{color:var(--muted);max-width:56ch;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:0 26px;border-radius:8px;font-weight:600;font-size:15px;border:0;cursor:pointer;transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-or{background:var(--orange);color:#fff}
+.btn-gh{border:1px solid rgba(255,255,255,.6);color:#fff}
+
+/* nav */
+.nav{position:fixed;inset:0 0 auto;z-index:20;transition:background .3s,box-shadow .3s}
+.nav.solid{background:rgba(250,248,243,.94);backdrop-filter:blur(8px);box-shadow:0 1px 0 #e3ddd0}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{font-family:Georgia,serif;font-size:26px;letter-spacing:-.05em;color:#fff;transition:color .3s}
+.brand small{font:700 10px 'DM Sans',sans-serif;letter-spacing:.3em;margin-left:8px;vertical-align:middle}
+.nav.solid .brand,.nav.solid .links a{color:var(--ink)}
+.links{display:flex;gap:28px;align-items:center;font-size:14px;color:#fff}
+.links a:hover{color:var(--orange)}
+.links .btn{min-height:40px;padding:0 18px;font-size:13px;color:#fff!important}
+
+/* hero */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;color:#fff;overflow:hidden;padding:0}
+.hero img{position:absolute;inset:0;object-position:50% 60%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(8,38,40,.82),rgba(8,38,40,.15) 60%,rgba(8,38,40,.35))}
+.hero .wrap{position:relative;z-index:2;padding:140px 0 72px}
+.hero h1{font-size:clamp(46px,8vw,104px);letter-spacing:-.045em;max-width:12ch;font-weight:500}
+.hero h1 em{color:#ffd9ae}
+.hero .lead-p{max-width:50ch;margin:24px 0 32px;font-size:18px;color:#f1efe8}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* stats */
+.stats{background:var(--ink);color:#fff;padding:36px 0}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.stats b{display:block;font:600 34px 'Manrope',sans-serif;color:#ffc392}
+.stats span{font-size:13px;opacity:.8}
+
+/* destinos */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;margin-bottom:48px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.card{position:relative;border-radius:14px;overflow:hidden;min-height:420px;color:#fff;display:flex;align-items:flex-end;isolation:isolate}
+.card img{position:absolute;inset:0;z-index:-2;transition:transform .8s}
+.card:hover img{transform:scale(1.05)}
+.card::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(8,38,40,.85),transparent 60%)}
+.card div{padding:26px}
+.card h3{font-size:28px}
+.card p{font-size:14px;opacity:.9;margin-top:6px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);padding:5px 12px;border-radius:20px;margin-bottom:12px}
+.c1{grid-column:span 7}.c2{grid-column:span 5}.c3{grid-column:span 5}.c4{grid-column:span 7}
+.note{margin-top:20px;font-size:13px;color:var(--muted)}
+
+/* incluye */
+.inc{background:var(--sand)}
+.inc .cols{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.inc .ph{border-radius:14px;overflow:hidden;aspect-ratio:4/5}
+.list{list-style:none;padding:0;margin:32px 0 0;display:grid;gap:18px}
+.list li{display:flex;gap:16px}
+.list i{flex:none;width:40px;height:40px;border-radius:50%;background:var(--ink);color:#ffc392;display:grid;place-items:center;font-style:normal;font-size:18px}
+.list b{display:block;font-family:'Manrope',sans-serif}
+.list span{color:var(--muted);font-size:14px}
+
+/* niveles */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.lv{background:#fff;border:1px solid #e3ddd0;border-radius:14px;padding:30px}
+.lv .n{font:600 14px 'Manrope',sans-serif;color:var(--orange)}
+.lv h3{font-size:24px;margin:12px 0 10px}
+.lv p{color:var(--muted);font-size:15px}
+
+/* pasos */
+.how{background:var(--ink);color:#fff}
+.how .eyebrow{color:#ffc392}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:48px;counter-reset:s}
+.step{border-top:1px solid rgba(255,255,255,.25);padding-top:20px;counter-increment:s}
+.step::before{content:"0" counter(s);font:600 14px 'Manrope',sans-serif;color:#ffc392}
+.step h3{font-size:22px;margin:10px 0 8px}
+.step p{font-size:14px;opacity:.75}
+
+/* galeria */
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.gal .big{border-radius:14px;overflow:hidden;aspect-ratio:3/4}
+.gal blockquote{margin:0;font:500 clamp(26px,3.4vw,42px)/1.2 'Manrope',sans-serif;letter-spacing:-.03em}
+.gal blockquote em{color:var(--orange)}
+
+/* faq */
+.faq{max-width:760px;margin-top:40px}
+details{border-bottom:1px solid #ddd6c6;padding:20px 0}
+summary{cursor:pointer;font:600 18px 'Manrope',sans-serif;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--orange);font-size:24px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{color:var(--muted);margin-top:12px}
+
+/* contacto */
+.contact{position:relative;color:#fff;overflow:hidden;isolation:isolate}
+.contact>img{position:absolute;inset:0;z-index:-2}
+.contact::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(8,38,40,.72)}
+.contact .cols{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+form{background:var(--cream);color:var(--ink);border-radius:14px;padding:32px;display:grid;gap:14px}
+label{font-size:13px;font-weight:600;display:grid;gap:6px}
+input,select,textarea{font:inherit;padding:13px 14px;border:1px solid #d5cfc0;border-radius:8px;background:#fff;color:var(--ink);width:100%}
+form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+footer{background:#16302d;color:#b9c4bf;padding:36px 0;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.wa{position:fixed;right:18px;bottom:18px;z-index:30;background:#25d366;color:#fff;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}.card img{transition:none}}
+
+@media (max-width:860px){
+ section{padding:64px 0}
+ .links a:not(.btn){display:none}
+ .stats .wrap{grid-template-columns:repeat(2,1fr)}
+ .c1,.c2,.c3,.c4{grid-column:span 12;min-height:340px}
+ .inc .cols,.contact .cols,.gal{grid-template-columns:1fr;gap:36px}
+ .levels,.steps{grid-template-columns:1fr}
+ .inc .ph{aspect-ratio:4/3}
+ form .row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+ <div class="wrap">
+  <a class="brand" href="#">MZ Viajes<small>SURF TRIPS</small></a>
+  <nav class="links">
+   <a href="#destinos">Destinos</a>
+   <a href="#incluye">Qué incluye</a>
+   <a href="#niveles">Niveles</a>
+   <a href="#faq">Preguntas</a>
+   <a class="btn btn-or" href="#contacto">Armá tu trip</a>
+  </nav>
+ </div>
+</header>
+
+<main>
+<section class="hero">
+ <img src="img/surf-1.jpg" alt="Cuatro surfistas caminan con sus tablas por un acantilado verde frente al mar">
+ <div class="wrap">
+  <p class="eyebrow" style="color:#ffd9ae;margin:0">VIAJES DE SURF DESDE ARGENTINA</p>
+  <h1>Tu próxima ola está <em>más lejos</em> de lo que pensás</h1>
+  <p class="lead-p">Viajes de surf en grupo y a medida: vuelos, alojamiento frente al mar, clases y traslados. Vos solo traé las ganas de remar.</p>
+  <div class="cta">
+   <a class="btn btn-or" href="#contacto">Quiero mi surf trip →</a>
+   <a class="btn btn-gh" href="#destinos">Ver destinos</a>
+  </div>
+ </div>
+</section>
+
+<div class="stats">
+ <div class="wrap">
+  <div><b>4+</b><span>destinos de olas</span></div>
+  <div><b>6–10</b><span>personas por grupo</span></div>
+  <div><b>Todos</b><span>los niveles, desde cero</span></div>
+  <div><b>100%</b><span>armado a medida</span></div>
+ </div>
+</div>
+
+<section id="destinos">
+ <div class="wrap">
+  <div class="head rv">
+   <div>
+    <p class="eyebrow">DESTINOS</p>
+    <h2>Elegí tu <em>rompiente</em></h2>
+   </div>
+   <p class="lead" style="margin:0">Spots seleccionados por calidad de ola, clima y ambiente. Cada viaje se adapta a tu nivel y presupuesto.</p>
+  </div>
+  <div class="grid">
+   <a class="card c1 rv" href="#contacto" data-dest="Bali, Indonesia">
+    <img src="img/surf-1.jpg" alt="Acantilado y olas en Bali" loading="lazy">
+    <div><span class="tag">Intermedio · Avanzado</span><h3>Bali, Indonesia</h3><p>Acantilados, arrecifes y olas de clase mundial todo el año.</p></div>
+   </a>
+   <a class="card c2 rv" href="#contacto" data-dest="Sri Lanka">
+    <img src="img/surf-2.jpg" alt="Surfistas en olas suaves frente a palmeras en Sri Lanka" loading="lazy">
+    <div><span class="tag">Principiante</span><h3>Sri Lanka</h3><p>Olas amigables, agua tibia y selva hasta la orilla.</p></div>
+   </a>
+   <a class="card c3 rv" href="#contacto" data-dest="Costa atlántica de Europa">
+    <img src="img/surf-3.jpg" alt="Grupo con tablas al atardecer en la playa" loading="lazy">
+    <div><span class="tag">Todos los niveles</span><h3>Costa atlántica de Europa</h3><p>Surf camps con atardeceres eternos y vida de pueblo.</p></div>
+   </a>
+   <a class="card c4 rv" href="#contacto" data-dest="Costa salvaje (a medida)">
+    <img src="img/surf-4.jpg" alt="Amigos reunidos en la arena al atardecer" loading="lazy" style="object-position:50% 70%">
+    <div><span class="tag">A medida</span><h3>Costa salvaje</h3><p>Playas desiertas, fogón y surf lejos de la multitud.</p></div>
+   </a>
+  </div>
+  <p class="note">* Destinos, fechas y valores de ejemplo. Consultanos por disponibilidad y precio actualizado.</p>
+ </div>
+</section>
+
+<section class="inc" id="incluye">
+ <div class="wrap cols">
+  <div class="ph rv"><img src="img/surf-3.jpg" alt="Grupo caminando hacia el mar con sus tablas" loading="lazy"></div>
+  <div class="rv">
+   <p class="eyebrow">TODO RESUELTO</p>
+   <h2>Vos surfeás, <em>nosotros</em> organizamos</h2>
+   <ul class="list">
+    <li><i>✈</i><div><b>Vuelos y traslados</b><span>Asesoría de pasajes, equipaje de tabla y transfers desde el aeropuerto.</span></div></li>
+    <li><i>⌂</i><div><b>Alojamiento cerca del mar</b><span>Surf camps, hostels y casas compartidas a pasos del agua.</span></div></li>
+    <li><i>◐</i><div><b>Clases y coaching</b><span>Instructores locales, análisis en video y guía de spots según el día.</span></div></li>
+    <li><i>☂</i><div><b>Seguro y soporte</b><span>Asistencia al viajero y acompañamiento antes, durante y después.</span></div></li>
+   </ul>
+  </div>
+ </div>
+</section>
+
+<section id="niveles">
+ <div class="wrap">
+  <p class="eyebrow rv">PARA CADA SURFISTA</p>
+  <h2 class="rv">No importa si nunca <em>paraste</em> una ola</h2>
+  <div class="levels">
+   <div class="lv rv"><span class="n">01</span><h3>Primera ola</h3><p>Nunca surfeaste o recién empezás. Playas de fondo de arena, olas chicas y mucha paciencia de instructores.</p></div>
+   <div class="lv rv"><span class="n">02</span><h3>Progresión</h3><p>Ya te parás y querés mejorar. Lectura de olas, giros y sesiones guiadas con feedback diario.</p></div>
+   <div class="lv rv"><span class="n">03</span><h3>Búsqueda de olas</h3><p>Surfeás con autonomía y buscás rompientes de calidad. Itinerarios flexibles según swell y viento.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="how">
+ <div class="wrap">
+  <p class="eyebrow rv">CÓMO FUNCIONA</p>
+  <h2 class="rv">Del “y si nos vamos” al <em>agua</em> en 4 pasos</h2>
+  <div class="steps">
+   <div class="step rv"><h3>Contanos</h3><p>Tu nivel, fechas, presupuesto y con quién viajás.</p></div>
+   <div class="step rv"><h3>Armamos</h3><p>Te proponemos destino e itinerario a medida.</p></div>
+   <div class="step rv"><h3>Reservás</h3><p>Confirmamos vuelos, alojamiento y clases.</p></div>
+   <div class="step rv"><h3>Surfeás</h3><p>Te acompañamos durante todo el viaje.</p></div>
+  </div>
+ </div>
+</section>
+
+<section>
+ <div class="wrap gal">
+  <div class="big rv"><img src="img/surf-4.jpg" alt="Atardecer en la playa después de surfear" loading="lazy"></div>
+  <blockquote class="rv">El mejor momento del día no es la ola: es la <em>charla en la arena</em> cuando se va el sol.</blockquote>
+ </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+ <div class="wrap">
+  <p class="eyebrow rv">PREGUNTAS FRECUENTES</p>
+  <h2 class="rv">Lo que nos <em>preguntan</em></h2>
+  <div class="faq rv">
+   <details><summary>¿Necesito experiencia previa?</summary><p>No. Tenemos viajes para quienes nunca surfearon y otros pensados para surfistas con autonomía.</p></details>
+   <details><summary>¿Tengo que llevar mi tabla?</summary><p>No es obligatorio: en cada destino hay alquiler de tablas y trajes. Si preferís llevar la tuya, te asesoramos con el equipaje.</p></details>
+   <details><summary>¿Cuál es la mejor época para viajar?</summary><p>Depende del destino y del swell. Te recomendamos la temporada ideal según tu nivel.</p></details>
+   <details><summary>¿Puedo viajar solo/a?</summary><p>Sí, muchos de nuestros grupos se arman con viajeros que llegan solos. También organizamos trips privados para amigos o familias.</p></details>
+   <details><summary>¿Cómo se paga?</summary><p>Consultanos por las opciones de pago y financiación disponibles al momento de armar tu viaje.</p></details>
+  </div>
+ </div>
+</section>
+
+<section class="contact" id="contacto">
+ <img src="img/surf-2.jpg" alt="" loading="lazy">
+ <div class="wrap cols">
+  <div class="rv">
+   <p class="eyebrow" style="color:#ffc392">EMPEZÁ TU VIAJE</p>
+   <h2>Contanos <em>dónde</em> querés surfear</h2>
+   <p class="lead" style="color:#e4e8e4">Completá el formulario y te respondemos por WhatsApp con una propuesta a medida.</p>
+  </div>
+  <form id="form" class="rv">
+   <label>Nombre<input name="nombre" required autocomplete="name"></label>
+   <div class="row">
+    <label>Destino
+     <select name="destino" id="destino">
+      <option>Bali, Indonesia</option>
+      <option>Sri Lanka</option>
+      <option>Costa atlántica de Europa</option>
+      <option>Costa salvaje (a medida)</option>
+      <option>No sé todavía</option>
+     </select>
+    </label>
+    <label>Nivel
+     <select name="nivel"><option>Principiante</option><option>Intermedio</option><option>Avanzado</option></select>
+    </label>
+   </div>
+   <div class="row">
+    <label>Personas<input name="personas" type="number" min="1" value="2"></label>
+    <label>Mes estimado<input name="mes" placeholder="Ej: febrero"></label>
+   </div>
+   <label>Comentarios<textarea name="msg" rows="3"></textarea></label>
+   <button class="btn btn-or" type="submit">Enviar por WhatsApp →</button>
+  </form>
+ </div>
+</section>
+</main>
+
+<footer>
+ <div class="wrap">
+  <span>© 2026 MZ Viajes · Mar de Ajó, Buenos Aires</span>
+  <a href="https://instagram.com/mz.viajes" rel="noopener">@mz.viajes</a>
+ </div>
+</footer>
+
+<a class="wa" href="https://wa.me/5492257502521?text=Hola!%20Quiero%20info%20sobre%20surf%20trips" aria-label="WhatsApp" rel="noopener">
+ <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14c-.2.6-1.3 1.2-1.800 1.2-.5.1-1 .2-3.300-.7-2.800-1.1-4.600-4-4.7-4.200-.1-.2-1.1-1.500-1.1-2.800s.7-2 1-2.300c.2-.3.500-.3.7-.3h.5c.2 0 .4 0 .6.500l.9 2.1c.1.200.1.400 0 .5l-.4.600-.3.300c-.1.1-.3.300-.1.600.2.300.8 1.3 1.7 2.1 1.1 1 2 1.3 2.300 1.400.3.1.5.1.6-.1l.9-1.1c.2-.3.400-.2.600-.1l2 .9c.3.1.5.200.5.300.1.1.1.7-.1 1.3z"/></svg>
+</a>
+
+<script>
+const nav=document.getElementById('nav');
+const onScroll=()=>nav.classList.toggle('solid',scrollY>40);
+onScroll();addEventListener('scroll',onScroll,{passive:true});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+document.querySelectorAll('.card[data-dest]').forEach(c=>c.addEventListener('click',()=>{
+ const s=document.getElementById('destino');
+ [...s.options].forEach(o=>{if(o.text===c.dataset.dest)s.value=o.value});
+}));
+
+document.getElementById('form').addEventListener('submit',e=>{
+ e.preventDefault();
+ const d=Object.fromEntries(new FormData(e.target));
+ const t=`Hola! Soy ${d.nombre}. Quiero info sobre un surf trip.\nDestino: ${d.destino}\nNivel: ${d.nivel}\nPersonas: ${d.personas}\nMes: ${d.mes||'a definir'}\n${d.msg||''}`;
+ window.open('https://wa.me/5492257502521?text='+encodeURIComponent(t),'_blank','noopener');
+});
+</script>
+</body>
+</html>
