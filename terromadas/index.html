@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terromadas | Agencia de viajes y turismo</title>
+<meta name="description" content="Terromadas, agencia de turismo. Paquetes, ofertas y viajes a tu medida. Consultá por WhatsApp.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; form-action 'none'">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%232e4a3b'/%3E%3Cpath d='M8 46 24 24l10 13 8-10 14 19z' fill='%23e0a458'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="Terromadas, inicio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#2e4a3b"/><circle cx="43" cy="22" r="6" fill="#e0a458"/><path d="M8 47 24 25l10 13 8-10 14 19z" fill="#f7f1e6"/><path d="M8 47 24 25l6 8-9 14z" fill="#b4532a"/></svg>
+      Terromadas
+    </a>
+    <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="#inicio">Inicio</a>
+      <a href="#ofertas">Ofertas</a>
+      <a href="#paquetes">Paquetes</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+      <a class="btn btn-clay" id="navArma" href="#" target="_blank" rel="noopener noreferrer">Armá tu viaje</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero" id="inicio">
+  <img class="hero-img" id="heroImg" alt="" hidden>
+  <svg class="hero-art" id="heroArt" viewBox="0 0 800 330" aria-hidden="true"><circle cx="610" cy="90" r="54" fill="#f6d9a0" opacity=".85"/><path d="M0 260 170 100 300 220 450 60 640 240 800 150V330H0Z" fill="#1f3429" opacity=".55"/><path d="M0 300 220 190 420 290 620 170 800 280V330H0Z" fill="#14261d" opacity=".7"/></svg>
+  <div class="wrap">
+    <div class="eyebrow">Agencia de viajes y turismo</div>
+    <h1 id="heroTitle">Viajá distinto. Viajá terromada.</h1>
+    <p class="lead" id="heroText"></p>
+    <div class="actions">
+      <a class="btn btn-clay" href="#paquetes">Ver paquetes</a>
+      <a class="btn btn-line" href="#ofertas">Ofertas de la semana</a>
+    </div>
+  </div>
+</section>
+
+<div class="quick"><div class="wrap"><div class="grid">
+  <a class="qcard" href="#paquetes"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></svg></span><b>Paquetes</b><span>Explorá destinos y salidas</span></a>
+  <a class="qcard" href="#ofertas"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12l-8 8-9-9V3h8l9 9zM7.5 7.5h.01"/></svg></span><b>Ofertas</b><span>Las mejores oportunidades</span></a>
+  <a class="qcard" id="quickArma" href="#" target="_blank" rel="noopener noreferrer"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20l9-16-9 4-9-4 9 16z"/></svg></span><b>Armá tu viaje</b><span>A tu medida, paso a paso</span></a>
+  <a class="qcard" href="#contacto"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-12 7l-5 1 1-4a8 8 0 1 1 16-4z"/></svg></span><b>Contacto</b><span>Escribinos por WhatsApp</span></a>
+</div></div></div>
+
+<section class="s offers" id="ofertas">
+  <div class="wrap">
+    <div class="sh"><div><div class="eyebrow">Ofertas destacadas</div><h2>Oportunidades para salir ya</h2></div><p>Cupos limitados y precios especiales por tiempo acotado.</p></div>
+    <div class="cards" id="offerCards"></div>
+  </div>
+</section>
+
+<section class="s" id="paquetes">
+  <div class="wrap">
+    <div class="sh"><div><div class="eyebrow" style="color:var(--clay)">Paquetes</div><h2>Elegí tu próximo destino</h2></div><p>Filtrá por destino o buscá por nombre. Cada paquete tiene su botón de consulta directa.</p></div>
+    <div class="filters">
+      <label class="sr" for="q">Buscar</label>
+      <input id="q" type="search" placeholder="Buscar destino o paquete…">
+      <label class="sr" for="dest">Destino</label>
+      <select id="dest"><option value="">Todos los destinos</option></select>
+    </div>
+    <div class="cards" id="pkgCards"></div>
+  </div>
+</section>
+
+<section class="s" style="padding-top:0">
+  <div class="wrap"><div class="arma">
+    <div><h2>¿No encontrás lo que buscás? Armalo vos.</h2><p>Elegí destino, fechas y servicios, y armamos el viaje a tu medida.</p></div>
+    <a class="btn btn-moss" id="bandArma" href="#" target="_blank" rel="noopener noreferrer">Armá tu viaje →</a>
+  </div></div>
+</section>
+
+<section class="s" id="nosotros" style="padding-top:0">
+  <div class="wrap about">
+    <div><div class="eyebrow" style="color:var(--clay)">Nosotros</div><h2 style="font-size:clamp(30px,4vw,44px)">Viajar es mejor con alguien que te acompaña</h2><p id="aboutText"></p></div>
+    <div class="vals">
+      <div class="val"><div><b>Atención personal</b><span>Hablás siempre con una persona, antes, durante y después del viaje.</span></div></div>
+      <div class="val"><div><b>Precios claros</b><span>Te mostramos qué incluye cada paquete, sin sorpresas.</span></div></div>
+      <div class="val"><div><b>Viajes a tu medida</b><span>Si no está en el catálogo, lo armamos juntos.</span></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer id="contacto">
+  <div class="wrap">
+    <div><h3>Terromadas</h3><p id="footCity" style="max-width:300px">Agencia de viajes y turismo.</p></div>
+    <div><h3>Contacto</h3><a id="footWa" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a><a id="footIg" href="#" target="_blank" rel="noopener noreferrer" hidden>Instagram</a><a id="footMail" href="#" hidden></a></div>
+    <div><h3>Secciones</h3><a href="#ofertas">Ofertas</a><a href="#paquetes">Paquetes</a><a href="#nosotros">Nosotros</a></div>
+    <div class="fine">© <span id="year"></span> Terromadas. Los precios y disponibilidad pueden cambiar sin previo aviso.</div>
+  </div>
+</footer>
+
+<a class="wa-fab" id="fab" href="#" target="_blank" rel="noopener noreferrer" aria-label="Escribinos por WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3.2 16.8L2 22l5.3-1.4A11 11 0 1 0 20.5 3.5zM12 20a8.9 8.9 0 0 1-4.5-1.2l-.3-.2-3.1.8.8-3-.2-.3A9 9 0 1 1 12 20zm5-6.6c-.3-.1-1.6-.8-1.9-.9s-.5-.1-.7.1-.8.9-.9 1.1-.3.2-.6.1a7.3 7.3 0 0 1-3.6-3.1c-.3-.5.3-.4.8-1.4a.6.6 0 0 0 0-.5l-.9-2c-.2-.5-.5-.4-.7-.4h-.6a1.2 1.2 0 0 0-.9.4 3.700 3.700 0 0 0-1.100 2.700 6.400 6.400 0 0 0 1.300 3.400 14.600 14.600 0 0 0 5.600 4.900c2.100.9 2.100.6 2.500.6a2.100 2.100 0 0 0 1.400-1 1.700 1.700 0 0 0 .1-1c-.1-.1-.3-.2-.6-.3z"/></svg>
+</a>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="sheet" id="sheet"></div></div>
+
+<script type="module" src="js/public.js"></script>
+</body>
+</html>
