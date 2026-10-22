@@ -17,6 +17,10 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isOwner();
     }
+    match /external/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
     match /site/{doc} {
       allow read: if true;
       allow write: if isOwner();

@@ -7,6 +7,12 @@ const FB = `https://www.gstatic.com/firebasejs/${FB_VER}`;
 export const isDemo = !CONFIG.firebase.apiKey;
 
 // ---------- MODO DEMO ----------
+const art = (a, b) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><circle cx="600" cy="170" r="70" fill="#fff" opacity=".7"/></svg>`);
+const DEMO_EXTERNAL = [
+  { id: 'x1', title: 'Caribe todo incluido', subtitle: 'Punta Cana · 7 noches', price: 'Desde USD 1.499', url: 'https://www.terromadasviajes.com', image: art('#36bcd8', '#fee2a8'), createdAt: 3 },
+  { id: 'x2', title: 'Salida grupal a Brasil', subtitle: 'Florianópolis · 8 días', price: 'Desde USD 899', url: 'https://www.terromadasviajes.com', image: art('#fec652', '#b51310'), createdAt: 2 },
+  { id: 'x3', title: 'Crucero por el Mediterráneo', subtitle: '10 noches', price: 'Consultar', url: 'https://www.terromadasviajes.com', image: art('#3f747f', '#2fd8c5'), createdAt: 1 }
+];
 const LS = 'terromadas-demo-v1';
 const load = () => {
   try { const s = JSON.parse(localStorage.getItem(LS)); if (s) return s; } catch {}
@@ -40,6 +46,16 @@ const demo = {
     s.packages = s.packages.filter(p => p.id !== id);
     delete s.photos[id];
     persist(s);
+  },
+  async listExternal() { return load().external || DEMO_EXTERNAL; },
+  async saveExternal(x) {
+    const s = load(); const list = (s.external || DEMO_EXTERNAL).slice();
+    const i = list.findIndex(e => e.id === x.id);
+    if (i >= 0) list[i] = x; else list.push(x);
+    s.external = list; persist(s);
+  },
+  async deleteExternal(id) {
+    const s = load(); s.external = (s.external || DEMO_EXTERNAL).filter(e => e.id !== id); persist(s);
   },
   async login(_email, pw) {
     if (pw !== CONFIG.demoPassword) throw new Error('Contraseña incorrecta');
@@ -93,6 +109,13 @@ const real = {
     await f.deleteDoc(f.doc(db, 'packages', id));
     await f.deleteDoc(f.doc(db, 'photos', id));
   },
+  async listExternal() {
+    const { db, f } = await fb();
+    const snap = await f.getDocs(f.collection(db, 'external'));
+    return snap.docs.map(d => ({ ...d.data(), id: d.id }));
+  },
+  async saveExternal(x) { const { db, f } = await fb(); const { id, ...data } = x; await f.setDoc(f.doc(db, 'external', id), data); },
+  async deleteExternal(id) { const { db, f } = await fb(); await f.deleteDoc(f.doc(db, 'external', id)); },
   async login(email, pw) { const { auth, a } = await fb(); await a.signInWithEmailAndPassword(auth, email, pw); },
   async logout() { const { auth, a } = await fb(); await a.signOut(auth); },
   async onAuth(cb) { const { auth, a } = await fb(); a.onAuthStateChanged(auth, u => cb(u ? { email: u.email } : null)); }

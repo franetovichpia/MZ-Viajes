@@ -4,6 +4,7 @@ import { h, $, fmtPrice, safeImg, toast, uid } from './dom.js';
 
 const app = $('#app');
 let packages = [];
+let external = [];
 let settings = {};
 let tab = 'paquetes';
 
@@ -61,13 +62,13 @@ function showLogin() {
 /* ---------- panel ---------- */
 async function showPanel() {
   app.replaceChildren(h('p', { style: 'padding:30px' }, 'Cargando…'));
-  try { [settings, packages] = await Promise.all([store.getSettings(), store.listPackages()]); }
+  try { [settings, packages, external] = await Promise.all([store.getSettings(), store.listPackages(), store.listExternal().catch(() => [])]); }
   catch (e) { toast('Error al cargar: ' + e.message, 'err'); }
   renderPanel();
 }
 
 function renderPanel() {
-  const tabs = [['paquetes', 'Paquetes'], ['ofertas', `Ofertas (${activeOffers().length}/${MAX})`], ['ajustes', 'Ajustes']];
+  const tabs = [['paquetes', 'Paquetes'], ['ofertas', `Vidriera (${activeOffers().length}/${MAX})`], ['proveedor', `Proveedor (${external.length}/${CONFIG.maxExternal})`], ['ajustes', 'Ajustes']];
   app.replaceChildren(
     h('header', { class: 'top' }, h('div', { class: 'wrap' }, h('b', {}, 'Terromadas · Panel'),
       h('div', { style: 'display:flex;gap:8px' },
@@ -75,7 +76,7 @@ function renderPanel() {
         h('button', { class: 'btn btn-clay', onclick: () => store.logout().then(() => !isDemo || showLogin()) }, 'Salir')))),
     h('main', { class: 'wrap', style: 'padding-bottom:60px' },
       h('div', { class: 'tabs', role: 'tablist' }, tabs.map(([k, l]) => h('button', { role: 'tab', 'aria-selected': tab === k, onclick: () => { tab = k; renderPanel(); } }, l))),
-      tab === 'paquetes' ? viewPackages() : tab === 'ofertas' ? viewOffers() : viewSettings()));
+      tab === 'paquetes' ? viewPackages() : tab === 'ofertas' ? viewOffers() : tab === 'proveedor' ? viewExternal() : viewSettings()));
 }
 
 async function patch(id, data, msg) {
@@ -84,7 +85,7 @@ async function patch(id, data, msg) {
 }
 
 function capFull(ex) { return activeOffers(ex).length >= MAX; }
-const CAP_MSG = `Ya hay ${MAX} ofertas activas. Quitá una en la pestaña "Ofertas" o reemplazala.`;
+const CAP_MSG = `La vidriera ya tiene ${MAX} paquetes. Quitá uno en la pestaña "Vidriera" o reemplazalo.`;
 
 /* ---------- vista paquetes ---------- */
 function viewPackages() {
@@ -99,7 +100,7 @@ function rowFor(p) {
   return h('div', { class: 'row' },
     safeImg(p.thumb) ? h('img', { src: p.thumb, alt: '' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
     h('div', {}, h('h3', {}, p.title), h('div', { class: 'sub' }, `${p.destination || '—'} · ${p.duration || '—'} · ${fmtPrice(p.price, p.currency)}`),
-      h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), p.offer ? h('span', { class: 'chip offer' }, 'Oferta') : null)),
+      h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), p.offer ? h('span', { class: 'chip offer' }, 'En vidriera') : null)),
     h('div', { class: 'acts' },
       h('button', { class: 'sm', onclick: () => openForm(p) }, 'Editar'),
       h('button', { class: 'sm', onclick: () => setStatus(p, p.status === 'paused' ? 'active' : 'paused') }, p.status === 'paused' ? 'Activar' : 'Pausar'),
@@ -123,13 +124,13 @@ function viewOffers() {
   const offers = activeOffers();
   const candidates = packages.filter(p => p.status === 'active' && !p.offer);
   const swap = (slot, current) => {
-    const sel = h('select', { 'aria-label': current ? 'Reemplazar por' : 'Agregar oferta', onchange: async e => {
+    const sel = h('select', { 'aria-label': current ? 'Reemplazar por' : 'Agregar a la vidriera', onchange: async e => {
       const id = e.target.value; if (!id) return;
       try {
         if (current) await store.patchPackage(current.id, { offer: false, offerOrder: 0 }), Object.assign(current, { offer: false, offerOrder: 0 });
         const np = packages.find(x => x.id === id);
         await store.patchPackage(id, { offer: true, offerOrder: slot }); Object.assign(np, { offer: true, offerOrder: slot });
-        renderPanel(); toast('Oferta actualizada');
+        renderPanel(); toast('Vidriera actualizada');
       } catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); }
     } }, h('option', { value: '' }, current ? 'Reemplazar por…' : 'Elegir paquete…'), candidates.map(c => h('option', { value: c.id }, c.title)));
     return h('div', { class: 'fld' }, sel);
@@ -137,15 +138,15 @@ function viewOffers() {
   const slots = Array.from({ length: MAX }, (_, i) => {
     const cur = offers[i];
     return h('div', { class: 'slot' + (cur ? ' on' : '') },
-      h('b', {}, `Oferta ${i + 1}`),
+      h('b', {}, `Lugar ${i + 1}`),
       cur ? [safeImg(cur.thumb) ? h('img', { src: cur.thumb, alt: '' }) : null, h('div', {}, h('b', {}, cur.title), h('div', { class: 'sub' }, fmtPrice(cur.price, cur.currency))),
-        h('button', { class: 'sm danger', onclick: () => patch(cur.id, { offer: false, offerOrder: 0 }, 'Quitada de ofertas') }, 'Quitar de ofertas')] : h('div', { class: 'sub' }, 'Lugar libre'),
+        h('button', { class: 'sm danger', onclick: () => patch(cur.id, { offer: false, offerOrder: 0 }, 'Quitado de la vidriera') }, 'Quitar de la vidriera')] : h('div', { class: 'sub' }, 'Lugar libre'),
       candidates.length ? swap(i + 1, cur) : null);
   });
   // si hay ofertas con orden repetido, normalizamos al mostrar posiciones
   return h('div', {},
-    h('div', { class: 'bar' }, h('h2', {}, 'Ofertas destacadas'), h('span', { class: 'count' }, `${offers.length} de ${MAX} activas`)),
-    h('p', { class: 'help', style: 'margin-bottom:16px' }, `Podés tener hasta ${MAX} ofertas activas al mismo tiempo. Cambialas o reemplazalas cuando quieras, sin costo. Para que un paquete aparezca acá tiene que estar activo.`),
+    h('div', { class: 'bar' }, h('h2', {}, 'Vidriera del sitio'), h('span', { class: 'count' }, `${offers.length} de ${MAX} lugares`)),
+    h('p', { class: 'help', style: 'margin-bottom:16px' }, `La vidriera muestra hasta ${MAX} paquetes o promos propios, cada uno con su botón de WhatsApp. Cambialos o reemplazalos cuando quieras, sin costo. Para aparecer tiene que estar activo.`),
     h('div', { class: 'slots' }, slots));
 }
 
@@ -217,7 +218,75 @@ async function openForm(pkg) {
     fld('Descripción', f.description),
     fld('Qué incluye', f.includes, 'Un ítem por línea'),
     h('div', { class: 'fld' }, h('label', {}, `Fotos (hasta 5, la primera es la principal)`), file, photoBox),
-    h('label', { style: 'display:flex;gap:10px;align-items:center;font-weight:700' }, f.offer, `Mostrar como oferta destacada (máximo ${MAX} activas)`),
+    h('label', { style: 'display:flex;gap:10px;align-items:center;font-weight:700' }, f.offer, `Mostrar en la vidriera del sitio (máximo ${MAX})`),
+    h('div', { style: 'display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap' }, h('button', { class: 'btn btn-line', type: 'button', style: 'color:var(--ink)', onclick: close }, 'Cancelar'), save));
+  sheet.replaceChildren(h('button', { class: 'close', type: 'button', onclick: close, 'aria-label': 'Cerrar' }, '×'), form);
+}
+
+
+/* ---------- proveedor (paquetes externos, máx. 5) ---------- */
+function viewExternal() {
+  const list = [...external].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  const full = list.length >= CONFIG.maxExternal;
+  return h('div', {},
+    h('div', { class: 'bar' }, h('h2', {}, `Más opciones (${list.length}/${CONFIG.maxExternal})`),
+      h('button', { class: 'btn btn-clay', disabled: full, onclick: () => openExternalForm(null) }, '+ Agregar')),
+    h('p', { class: 'help', style: 'margin-bottom:16px' }, `Acá cargás hasta ${CONFIG.maxExternal} salidas o paquetes de ${CONFIG.externalHost}. Se muestran en el sitio como "Salidas y paquetes recientes" y, al elegirlos, el cliente va a esa página. Para agregar uno nuevo con ${CONFIG.maxExternal} cargados, eliminá uno.`),
+    list.length ? h('div', { class: 'list' }, list.map(x => h('div', { class: 'row' },
+      safeImg(x.image) ? h('img', { src: x.image, alt: '' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
+      h('div', {}, h('h3', {}, x.title), h('div', { class: 'sub' }, [x.subtitle, x.price].filter(Boolean).join(' · ') || '—'), h('div', { class: 'sub', style: 'word-break:break-all' }, x.url)),
+      h('div', { class: 'acts' },
+        h('button', { class: 'sm', onclick: () => openExternalForm(x) }, 'Editar'),
+        h('button', { class: 'sm danger', onclick: async () => {
+          if (!confirm(`¿Eliminar "${x.title}"?`)) return;
+          try { await store.deleteExternal(x.id); external = external.filter(e => e.id !== x.id); renderPanel(); toast('Eliminado'); }
+          catch (e) { toast('No se pudo eliminar: ' + e.message, 'err'); }
+        } }, 'Eliminar'))))) : h('div', { class: 'empty' }, 'Todavía no cargaste salidas del proveedor.'));
+}
+
+function openExternalForm(item) {
+  const isNew = !item;
+  const x = item ? { ...item } : { id: uid(), createdAt: Date.now() };
+  let image = x.image || ''; let changed = false;
+  const modal = h('div', { class: 'modal open', role: 'dialog', 'aria-modal': 'true', 'aria-label': isNew ? 'Agregar del proveedor' : 'Editar' });
+  const sheet = h('div', { class: 'sheet formsheet' });
+  modal.append(sheet); document.body.append(modal); document.body.style.overflow = 'hidden';
+  const close = () => { modal.remove(); document.body.style.overflow = ''; };
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  const f = {
+    title: h('input', { value: x.title || '', required: true, maxlength: 80 }),
+    url: h('input', { type: 'url', value: x.url || '', required: true, placeholder: `https://www.${CONFIG.externalHost}/...` }),
+    subtitle: h('input', { value: x.subtitle || '', maxlength: 80, placeholder: 'Ej: Punta Cana · 7 noches' }),
+    price: h('input', { value: x.price || '', maxlength: 40, placeholder: 'Ej: Desde USD 1.499' })
+  };
+  const fld = (label, el, hint) => h('div', { class: 'fld' }, h('label', {}, label), el, hint ? h('small', {}, hint) : null);
+  const prev = h('img', { alt: '', style: 'max-width:220px;border-radius:10px', hidden: !safeImg(image), src: safeImg(image) || undefined });
+  const file = h('input', { type: 'file', accept: 'image/*', onchange: async e => {
+    const fl = e.target.files[0]; if (!fl) return;
+    try { const [d] = await fit([await toDataUrl(fl, 800, .7)], 250000); image = d; changed = true; prev.src = d; prev.hidden = false; }
+    catch (ex) { toast(ex.message, 'err'); }
+  } });
+  const save = h('button', { class: 'btn btn-clay', type: 'submit' }, 'Guardar');
+  const form = h('form', { onsubmit: async e => {
+    e.preventDefault();
+    let host = '';
+    try { const u = new URL(f.url.value.trim()); host = u.protocol === 'https:' ? u.hostname.replace(/^www\./, '') : ''; } catch {}
+    if (!(host === CONFIG.externalHost || host.endsWith('.' + CONFIG.externalHost))) return toast(`El link tiene que ser de ${CONFIG.externalHost} y empezar con https://`, 'err');
+    if (!image) return toast('Subí una foto para la tarjeta', 'err');
+    const out = { ...x, title: f.title.value.trim(), url: f.url.value.trim(), subtitle: f.subtitle.value.trim(), price: f.price.value.trim(), image };
+    save.disabled = true; save.textContent = 'Guardando…';
+    try {
+      await store.saveExternal(out);
+      const i = external.findIndex(e2 => e2.id === out.id); if (i >= 0) external[i] = out; else external.push(out);
+      close(); renderPanel(); toast('Guardado ✔');
+    } catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); save.disabled = false; save.textContent = 'Guardar'; }
+  } },
+    h('h2', { style: 'font-size:26px' }, isNew ? 'Agregar salida del proveedor' : 'Editar'),
+    fld('Título', f.title),
+    fld(`Link a ${CONFIG.externalHost}`, f.url, 'Copiá la dirección de la página del paquete y pegala acá'),
+    fld('Detalle breve (opcional)', f.subtitle),
+    fld('Precio (opcional, texto libre)', f.price),
+    h('div', { class: 'fld' }, h('label', {}, 'Foto de la tarjeta'), file, prev),
     h('div', { style: 'display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap' }, h('button', { class: 'btn btn-line', type: 'button', style: 'color:var(--ink)', onclick: close }, 'Cancelar'), save));
   sheet.replaceChildren(h('button', { class: 'close', type: 'button', onclick: close, 'aria-label': 'Cerrar' }, '×'), form);
 }
@@ -249,7 +318,7 @@ function viewSettings() {
   } },
     h('h2', {}, 'Ajustes del sitio'),
     mk('whatsapp', 'WhatsApp de consultas', { inputmode: 'numeric', required: true }, 'Con código de país y sin signos. Argentina celular: 549 + área + número'),
-    mk('armaUrl', 'Link del botón "Armá tu viaje"', { type: 'url', placeholder: 'https://…' }, 'Si lo dejás vacío, el botón abre WhatsApp'),
+    mk('armaUrl', 'Link del botón "Armá tu viaje"', { type: 'url', placeholder: 'https://www.terromadasviajes.com' }, 'A dónde lleva el botón. Si lo dejás vacío, abre WhatsApp'),
     mk('heroTitle', 'Título de inicio (línea 1, oscura)', { maxlength: 60 }),
     mk('heroTitle2', 'Título de inicio (línea 2, roja)', { maxlength: 60 }),
     mk('heroScript', 'Frase manuscrita de inicio', { maxlength: 100 }),

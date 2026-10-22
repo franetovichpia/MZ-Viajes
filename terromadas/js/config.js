@@ -7,10 +7,12 @@ export const CONFIG = {
   },
   demoPassword: 'terromadas',
   maxOffers: 5,
+  maxExternal: 5,
+  externalHost: 'terromadasviajes.com',
   categories: ['Argentina', 'Brasil', 'Caribe', 'Cruceros', 'Salidas grupales', 'Viajes de 15', 'Full Day'],
   defaults: {
     whatsapp: '5493571347478',
-    armaUrl: '',
+    armaUrl: 'https://www.terromadasviajes.com',
     heroTitle: 'Viajá. Explorá.',
     heroTitle2: 'Viví el mundo.',
     heroScript: 'Viví experiencias únicas.',
