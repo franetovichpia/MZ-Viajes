@@ -10,7 +10,7 @@
 .fld small{color:var(--muted);font-size:12px}
 .top{background:var(--moss);color:#fff}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:12px}
-.top b{font-family:'Fraunces',serif;font-size:20px}
+.top b{font-family:'Poppins',sans-serif;font-size:20px}
 .top .btn{padding:8px 14px;min-height:38px;font-size:14px}
 .tabs{display:flex;gap:6px;margin:22px 0 18px;overflow-x:auto}
 .tabs button{border:0;background:#e7dfcd;border-radius:10px;padding:11px 18px;font-weight:700;color:var(--ink);white-space:nowrap}

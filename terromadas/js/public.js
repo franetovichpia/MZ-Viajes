@@ -5,16 +5,40 @@ import { h, $, fmtPrice, waLink, safeImg, toast } from './dom.js';
 let settings = CONFIG.defaults;
 let packages = [];
 let lastFocus = null;
+const filters = { q: '', dest: '', cat: '' };
+const trip = { date: '', pax: '2' };
 
 const waNumber = () => settings.whatsapp;
 const byNewest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
+
+// Íconos estáticos (no vienen de la base de datos)
+const CAT_ICONS = {
+  Playa: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  'Montaña': '<path d="M3 20l6-11 4 6 3-4 5 9z"/>',
+  Aventura: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  Cultura: '<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-6 9 6z"/>',
+  Romance: '<path d="M12 21s-8-5.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 11-8 11z"/>',
+  Familia: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 14.5c3 0 6 2 6 5.5"/>'
+};
+const icon = name => {
+  const s = document.createElement('span');
+  s.innerHTML = `<svg class="i" viewBox="0 0 24 24">${CAT_ICONS[name] || CAT_ICONS.Aventura}</svg>`;
+  return s.firstChild;
+};
+
+function fmtDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+}
 
 function consultText(p, date) {
   const parts = [`Hola Terromadas! Me interesa el paquete "${p.title}"`];
   if (p.destination) parts.push(`a ${p.destination}`);
   if (p.duration) parts.push(`(${p.duration})`);
   let t = parts.join(' ');
-  if (date) t += `. Fecha: ${date}`;
+  if (date) t += `. Fecha de salida: ${date}`;
+  else if (trip.date) t += `. Fecha deseada: ${fmtDate(trip.date)}`;
+  if (trip.pax) t += `. Pasajeros: ${trip.pax}`;
   return t + '. ¿Me pasan más información?';
 }
 
@@ -38,7 +62,7 @@ function card(p, isOffer) {
       h('div', { class: 'meta' }, p.duration ? h('span', {}, '🗓 ' + p.duration) : null, p.dates?.[0] ? h('span', {}, 'Salida: ' + p.dates[0].split(' al ')[0]) : null),
       priceBlock(p)),
     h('div', { class: 'pact' },
-      h('button', { class: 'btn btn-line', style: 'color:var(--moss)', onclick: () => openModal(p.id) }, 'Ver detalle'),
+      h('button', { class: 'btn btn-line', style: 'color:var(--wine)', onclick: () => openModal(p.id) }, 'Ver detalle'),
       sold
         ? h('span', { class: 'btn btn-wa', 'aria-disabled': 'true' }, 'Agotado')
         : h('a', { class: 'btn btn-wa', href: waLink(waNumber(), consultText(p)), target: '_blank', rel: 'noopener noreferrer' }, 'Consultar')));
@@ -52,21 +76,29 @@ function render() {
   const oc = $('#offerCards'); oc.replaceChildren();
   if (offers.length) offers.forEach(p => oc.append(card(p, true)));
   else oc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Pronto vas a ver acá nuestras próximas ofertas. ¡Seguinos en Instagram!'));
-  $('#ofertas').hidden = false;
 
-  const q = $('#q').value.trim().toLowerCase();
-  const d = $('#dest').value;
-  const list = visible.filter(p => (!d || p.destination === d) && (!q || `${p.title} ${p.destination}`.toLowerCase().includes(q)));
+  const q = filters.q.trim().toLowerCase();
+  const list = visible.filter(p => (!filters.dest || p.destination === filters.dest)
+    && (!filters.cat || p.category === filters.cat)
+    && (!q || `${p.title} ${p.destination}`.toLowerCase().includes(q)));
   const pc = $('#pkgCards'); pc.replaceChildren();
   if (list.length) list.forEach(p => pc.append(card(p)));
   else pc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, visible.length ? 'No encontramos paquetes con ese filtro.' : 'Estamos cargando nuevos paquetes. Escribinos por WhatsApp y te asesoramos.'));
+
+  const cats = $('#cats'); cats.replaceChildren();
+  const used = new Set(visible.map(p => p.category));
+  CONFIG.categories.filter(c => used.has(c)).forEach(c => cats.append(
+    h('button', { class: 'cat', type: 'button', 'aria-pressed': filters.cat === c ? 'true' : 'false',
+      onclick: () => { filters.cat = filters.cat === c ? '' : c; render(); } }, icon(c), c)));
 }
 
 function fillDestinations() {
-  const sel = $('#dest'); const cur = sel.value;
   const dests = [...new Set(packages.filter(p => p.status !== 'paused').map(p => p.destination).filter(Boolean))].sort();
-  sel.replaceChildren(h('option', { value: '' }, 'Todos los destinos'), ...dests.map(x => h('option', { value: x }, x)));
-  sel.value = dests.includes(cur) ? cur : '';
+  for (const sel of [$('#dest'), $('#sDest')]) {
+    const first = sel.id === 'dest' ? 'Todos los destinos' : 'Cualquier destino';
+    sel.replaceChildren(h('option', { value: '' }, first), ...dests.map(x => h('option', { value: x }, x)));
+    sel.value = dests.includes(filters.dest) ? filters.dest : '';
+  }
 }
 
 async function openModal(id) {
@@ -92,10 +124,10 @@ async function openModal(id) {
     gal,
     h('div', { class: 'det' },
       h('div', {},
-        h('div', { class: 'dest' }, p.destination || ''),
+        h('div', { class: 'dest' }, [p.destination, p.category].filter(Boolean).join(' · ')),
         h('h2', { id: 'mTitle' }, p.title),
         h('div', { class: 'meta' }, p.duration ? h('span', {}, '🗓 ' + p.duration) : null),
-        p.description ? h('p', { style: 'margin-top:14px;color:#44504a' }, p.description) : null,
+        p.description ? h('p', { style: 'margin-top:14px;color:#5c4744' }, p.description) : null,
         p.includes?.length ? [h('h4', {}, 'Qué incluye'), h('ul', {}, p.includes.map(i => h('li', {}, i)))] : null,
         p.dates?.length ? [h('h4', {}, 'Fechas de salida'), h('ul', {}, p.dates.map(i => h('li', {}, i)))] : null),
       h('div', { class: 'buy' }, priceBlock(p), sold ? h('div', { class: 'tag sold', style: 'position:static;text-align:center' }, 'AGOTADO') : [dateSel, wa],
@@ -124,20 +156,27 @@ function closeModal() {
   lastFocus?.focus?.();
 }
 
+const social = (id, url) => { const a = $(id); if (url) { a.href = url; a.hidden = false; } };
+const handle = v => String(v || '').trim().replace(/^@/, '').replace(/^https?:\/\/[^/]+\//, '').replace(/[^\w.\-/]/g, '');
+
 function applySettings() {
   const s = settings;
   $('#heroTitle').textContent = s.heroTitle;
+  $('#heroTitle2').textContent = s.heroTitle2;
+  $('#heroScript').textContent = s.heroScript;
   $('#heroText').textContent = s.heroText;
   $('#aboutText').textContent = s.about;
   const hi = safeImg(s.heroImage);
   if (hi) { const im = $('#heroImg'); im.src = hi; im.hidden = false; $('#heroArt').hidden = true; }
   const arma = s.armaUrl && /^https?:\/\//i.test(s.armaUrl) ? s.armaUrl : waLink(s.whatsapp, 'Hola Terromadas! Quiero armar mi viaje a medida.');
-  ['#navArma', '#quickArma', '#bandArma'].forEach(i => $(i).href = arma);
+  ['#navArma', '#bandArma'].forEach(i => $(i).href = arma);
   const wa = waLink(s.whatsapp, 'Hola Terromadas! Quiero hacer una consulta.');
-  $('#fab').href = wa; $('#footWa').href = wa;
-  if (s.instagram) { const ig = $('#footIg'); ig.href = 'https://instagram.com/' + s.instagram.replace(/^@/, '').replace(/[^\w.]/g, ''); ig.textContent = 'Instagram @' + s.instagram.replace(/^@/, ''); ig.hidden = false; }
+  ['#fab', '#footWa', '#footWaIc'].forEach(i => $(i).href = wa);
+  if (handle(s.instagram)) social('#footIg', 'https://instagram.com/' + handle(s.instagram));
+  if (handle(s.facebook)) social('#footFb', 'https://facebook.com/' + handle(s.facebook));
+  if (handle(s.tiktok)) social('#footTk', 'https://tiktok.com/@' + handle(s.tiktok));
   if (s.email) { const m = $('#footMail'); m.href = 'mailto:' + s.email; m.textContent = s.email; m.hidden = false; }
-  if (s.city) $('#footCity').textContent = 'Agencia de viajes y turismo · ' + s.city;
+  if (s.city) $('#footCity').textContent = 'Viajes y turismo · ' + s.city;
 }
 
 async function init() {
@@ -147,8 +186,17 @@ async function init() {
   menu.addEventListener('click', e => { if (e.target.closest('a')) { menu.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); } });
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').classList.contains('open')) closeModal(); });
-  $('#q').addEventListener('input', render);
-  $('#dest').addEventListener('change', render);
+
+  $('#q').addEventListener('input', e => { filters.q = e.target.value; render(); });
+  $('#dest').addEventListener('change', e => { filters.dest = e.target.value; $('#sDest').value = filters.dest; render(); });
+  $('#sDest').addEventListener('change', e => { filters.dest = e.target.value; $('#dest').value = filters.dest; render(); });
+  $('#sDate').addEventListener('change', e => { trip.date = e.target.value; render(); });
+  $('#sPax').addEventListener('change', e => { trip.pax = e.target.value; render(); });
+  $('#search').addEventListener('submit', e => e.preventDefault());
+  $('#sGo').addEventListener('click', () => {
+    filters.dest = $('#sDest').value; $('#dest').value = filters.dest; render();
+    $('#paquetes').scrollIntoView({ behavior: 'smooth' });
+  });
 
   try {
     [settings, packages] = await Promise.all([store.getSettings(), store.listPackages()]);

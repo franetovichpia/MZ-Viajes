@@ -173,6 +173,7 @@ async function openForm(pkg) {
     dates: h('textarea', { placeholder: '12/12/2026 al 19/12/2026\n09/01/2027 al 16/01/2027' }, (p.dates || []).join('\n')),
     description: h('textarea', { maxlength: 1200 }, p.description || ''),
     includes: h('textarea', { placeholder: 'Aéreo ida y vuelta\nTraslados\n7 noches de hotel' }, (p.includes || []).join('\n')),
+    category: h('select', {}, [h('option', { value: '' }, 'Sin tipo'), ...CONFIG.categories.map(c => h('option', { value: c, selected: p.category === c }, c))]),
     status: h('select', {}, [['active', 'Activo (visible)'], ['paused', 'Pausado (oculto)'], ['soldout', 'Agotado (visible, sin consulta)']].map(([v, l]) => h('option', { value: v, selected: p.status === v }, l))),
     offer: h('input', { type: 'checkbox', checked: !!p.offer, id: 'offchk' })
   };
@@ -197,7 +198,7 @@ async function openForm(pkg) {
     const out = { ...p, title: f.title.value.trim(), destination: f.destination.value.trim(), duration: f.duration.value.trim(),
       price: f.price.value === '' ? null : Number(f.price.value), oldPrice: f.oldPrice.value === '' ? null : Number(f.oldPrice.value),
       currency: f.currency.value, priceNote: f.priceNote.value.trim(), dates: lines(f.dates.value), description: f.description.value.trim(),
-      includes: lines(f.includes.value), status, offer, offerOrder: offer ? (p.offerOrder || (activeOffers(p.id).length + 1)) : 0 };
+      includes: lines(f.includes.value), category: f.category.value, status, offer, offerOrder: offer ? (p.offerOrder || (activeOffers(p.id).length + 1)) : 0 };
     save.disabled = true; save.textContent = 'Guardando…';
     try {
       if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 480, .7) : '';
@@ -208,7 +209,8 @@ async function openForm(pkg) {
   } },
     h('h2', { style: 'font-size:26px' }, isNew ? 'Nuevo paquete' : 'Editar paquete'),
     fld('Nombre del paquete', f.title), fld('Destino', f.destination),
-    h('div', { class: 'two' }, fld('Duración', f.duration), fld('Estado', f.status)),
+    h('div', { class: 'two' }, fld('Duración', f.duration), fld('Tipo de viaje', f.category)),
+    fld('Estado', f.status),
     h('div', { class: 'two' }, fld('Precio', f.price), fld('Moneda', f.currency)),
     h('div', { class: 'two' }, fld('Precio anterior (opcional)', f.oldPrice, 'Se muestra tachado'), fld('Aclaración del precio', f.priceNote)),
     fld('Fechas de salida', f.dates, 'Una por línea'),
@@ -243,10 +245,14 @@ function viewSettings() {
     h('h2', {}, 'Ajustes del sitio'),
     mk('whatsapp', 'WhatsApp de consultas', { inputmode: 'numeric', required: true }, 'Con código de país y sin signos. Argentina celular: 549 + área + número'),
     mk('armaUrl', 'Link del botón "Armá tu viaje"', { type: 'url', placeholder: 'https://…' }, 'Si lo dejás vacío, el botón abre WhatsApp'),
-    mk('heroTitle', 'Título de inicio', { maxlength: 90 }),
+    mk('heroTitle', 'Título de inicio (línea 1, oscura)', { maxlength: 60 }),
+    mk('heroTitle2', 'Título de inicio (línea 2, roja)', { maxlength: 60 }),
+    mk('heroScript', 'Frase manuscrita de inicio', { maxlength: 100 }),
     mk('heroText', 'Texto de inicio', { maxlength: 220 }, '', 'textarea'),
     mk('about', 'Texto "Nosotros"', { maxlength: 700 }, '', 'textarea'),
     mk('instagram', 'Instagram (usuario)', { placeholder: 'terromadas' }),
+    mk('facebook', 'Facebook (usuario o página, opcional)'),
+    mk('tiktok', 'TikTok (usuario, opcional)'),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
     h('div', { class: 'fld' }, h('label', {}, 'Foto principal de inicio (opcional)'), heroFile, heroPrev),
