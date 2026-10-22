@@ -235,6 +235,11 @@ function viewSettings() {
     const x = e.target.files[0]; if (!x) return;
     try { const [d] = await fit([await toDataUrl(x, 1600, .6)], 400000); s.heroImage = d; heroPrev.src = d; heroPrev.hidden = false; } catch (ex) { toast(ex.message, 'err'); }
   } });
+  const aboutPrev = h('img', { alt: '', style: 'max-width:200px;border-radius:12px', hidden: !safeImg(s.aboutImage), src: safeImg(s.aboutImage) || undefined });
+  const aboutFile = h('input', { type: 'file', accept: 'image/*', onchange: async e => {
+    const x = e.target.files[0]; if (!x) return;
+    try { const [d] = await fit([await toDataUrl(x, 900, .7)], 300000); s.aboutImage = d; aboutPrev.src = d; aboutPrev.hidden = false; } catch (ex) { toast(ex.message, 'err'); }
+  } });
   return h('form', { style: 'display:grid;gap:14px;max-width:640px', onsubmit: async e => {
     e.preventDefault();
     if (!/^\d{10,15}$/.test(String(s.whatsapp).replace(/\D/g, ''))) return toast('Revisá el número de WhatsApp (con código de país, ej: 5491112345678)', 'err');
@@ -249,13 +254,19 @@ function viewSettings() {
     mk('heroTitle2', 'Título de inicio (línea 2, roja)', { maxlength: 60 }),
     mk('heroScript', 'Frase manuscrita de inicio', { maxlength: 100 }),
     mk('heroText', 'Texto de inicio', { maxlength: 220 }, '', 'textarea'),
-    mk('about', 'Texto "Nosotros"', { maxlength: 700 }, '', 'textarea'),
+    mk('about', 'Historia (Nosotros). Separá los párrafos con una línea en blanco', { maxlength: 1800 }, '', 'textarea'),
+    mk('owner', 'Nombre de la titular (firma)'),
+    mk('ownerRole', 'Cargo o título de la titular'),
+    mk('address', 'Dirección de la agencia'),
+    mk('hours', 'Horario de atención'),
+    mk('legajo', 'Legajo o habilitación (ej: Legajo RNAV 19334)'),
     mk('instagram', 'Instagram (usuario)', { placeholder: 'terromadas' }),
     mk('facebook', 'Facebook (usuario o página, opcional)'),
     mk('tiktok', 'TikTok (usuario, opcional)'),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
     h('div', { class: 'fld' }, h('label', {}, 'Foto principal de inicio (opcional)'), heroFile, heroPrev),
+    h('div', { class: 'fld' }, h('label', {}, 'Foto de la titular, sección Nosotros (opcional)'), aboutFile, aboutPrev),
     h('button', { class: 'btn btn-clay', type: 'submit', style: 'justify-self:start' }, 'Guardar ajustes'),
     isDemo ? h('button', { class: 'sm', type: 'button', onclick: async () => { if (confirm('¿Volver a los datos de ejemplo?')) { await store.resetDemo(); showPanel(); } } }, 'Reiniciar datos de ejemplo (demo)') : null);
 }

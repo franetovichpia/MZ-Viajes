@@ -13,16 +13,17 @@ const byNewest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
 
 // Íconos estáticos (no vienen de la base de datos)
 const CAT_ICONS = {
-  Playa: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-  'Montaña': '<path d="M3 20l6-11 4 6 3-4 5 9z"/>',
-  Aventura: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
-  Cultura: '<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M3 10l9-6 9 6z"/>',
-  Romance: '<path d="M12 21s-8-5.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 11-8 11z"/>',
-  Familia: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 14.5c3 0 6 2 6 5.5"/>'
+  Argentina: '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+  Brasil: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  Caribe: '<path d="M2 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0M12 3v4M6.500 6l2 2M17.500 6l-2 2"/>',
+  Cruceros: '<path d="M3 17l2 3h14l2-3zM6 17v-6h12v6M10 11V7h4v4M12 3v4"/>',
+  'Salidas grupales': '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.500 3-6 6-6s6 2.500 6 6M15 14.500c3 0 6 2 6 5.500"/>',
+  'Viajes de 15': '<path d="M12 3l2.500 6 6.500.5-5 4.300 1.600 6.400L12 16.800 6.400 20.200 8 13.800 3 9.500 9.500 9z"/>',
+  'Full Day': '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
 };
 const icon = name => {
   const s = document.createElement('span');
-  s.innerHTML = `<svg class="i" viewBox="0 0 24 24">${CAT_ICONS[name] || CAT_ICONS.Aventura}</svg>`;
+  s.innerHTML = `<svg class="i" viewBox="0 0 24 24">${CAT_ICONS[name] || CAT_ICONS.Argentina}</svg>`;
   return s.firstChild;
 };
 
@@ -165,7 +166,12 @@ function applySettings() {
   $('#heroTitle2').textContent = s.heroTitle2;
   $('#heroScript').textContent = s.heroScript;
   $('#heroText').textContent = s.heroText;
-  $('#aboutText').textContent = s.about;
+  const at = $('#aboutText'); at.replaceChildren(...String(s.about || '').split(/\n\s*\n/).filter(Boolean).map(t => h('p', {}, t.trim())));
+  $('#ownerName').textContent = s.owner || '';
+  $('#ownerRole').textContent = s.ownerRole || '';
+  const ai = safeImg(s.aboutImage);
+  if (ai) { const im = $('#aboutImg'); im.src = ai; im.hidden = false; $('#aboutArt').hidden = true; }
+  $('#footAddr').textContent = s.address || ''; $('#footHours').textContent = s.hours || ''; $('#footLegajo').textContent = s.legajo || '';
   const hi = safeImg(s.heroImage);
   if (hi) { const im = $('#heroImg'); im.src = hi; im.hidden = false; $('#heroArt').hidden = true; }
   const arma = s.armaUrl && /^https?:\/\//i.test(s.armaUrl) ? s.armaUrl : waLink(s.whatsapp, 'Hola Terromadas! Quiero armar mi viaje a medida.');
@@ -176,7 +182,6 @@ function applySettings() {
   if (handle(s.facebook)) social('#footFb', 'https://facebook.com/' + handle(s.facebook));
   if (handle(s.tiktok)) social('#footTk', 'https://tiktok.com/@' + handle(s.tiktok));
   if (s.email) { const m = $('#footMail'); m.href = 'mailto:' + s.email; m.textContent = s.email; m.hidden = false; }
-  if (s.city) $('#footCity').textContent = 'Viajes y turismo · ' + s.city;
 }
 
 async function init() {
