@@ -162,7 +162,7 @@ function applySettings() {
   const ai = safeImg(s.aboutImage);
   if (ai) { const im = $('#aboutImg'); im.src = ai; im.hidden = false; $('#aboutArt').hidden = true; }
   $('#footAddr').textContent = s.address || ''; $('#footHours').textContent = s.hours || ''; $('#footLegajo').textContent = s.legajo || '';
-  const docs = [1, 2, 3].map(n => ({ label: s['q15Label' + n], url: s['q15Url' + n] })).filter(d => /^https:\/\//i.test(d.url || ''));
+  const docs = [1, 2, 3, 4].map(n => ({ label: s['q15Label' + n], url: s['q15Url' + n] })).filter(d => /^https:\/\//i.test(d.url || ''));
   $('#quince').hidden = !docs.length; $('#navQ15').hidden = !docs.length;
   if (docs.length) {
     $('#q15Title').textContent = s.q15Title || 'Viajes de 15';

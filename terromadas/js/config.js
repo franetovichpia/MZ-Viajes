@@ -30,11 +30,12 @@ export const CONFIG = {
     email: 'info@terromadasviajes.com',
     city: 'Río Tercero, Córdoba',
     heroImage: '',
-    q15Title: 'Viajes de 15',
-    q15Text: 'Elegí la propuesta soñada para tu viaje de egresados o de 15 y descargá toda la información.',
-    q15Label1: 'Propuesta 1', q15Url1: '',
-    q15Label2: 'Propuesta 2', q15Url2: '',
-    q15Label3: 'Propuesta 3', q15Url3: '',
+    q15Title: 'Tu viaje de quince',
+    q15Text: 'Elegí tu destino y descargá la información: itinerarios, qué incluye y tarifas.',
+    q15Label1: 'Crucero', q15Url1: '',
+    q15Label2: 'Camboriú', q15Url2: '',
+    q15Label3: 'Disney', q15Url3: '',
+    q15Label4: 'Tarifas del crucero 2027-2029', q15Url4: '',
     aboutImage: ''
   }
 };

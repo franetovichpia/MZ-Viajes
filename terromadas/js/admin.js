@@ -393,7 +393,7 @@ function viewSettings() {
     e.preventDefault();
     if (!/^\d{10,15}$/.test(String(s.whatsapp).replace(/\D/g, ''))) return toast('Revisá el número de WhatsApp (con código de país, ej: 5491112345678)', 'err');
     if (s.armaUrl && !/^https?:\/\//i.test(s.armaUrl)) return toast('El link de "Armá tu viaje" debe empezar con https://', 'err');
-    for (const n of [1, 2, 3]) if (s['q15Url' + n] && !/^https:\/\//i.test(s['q15Url' + n])) return toast(`El link del documento ${n} tiene que empezar con https://`, 'err');
+    for (const n of [1, 2, 3, 4]) if (s['q15Url' + n] && !/^https:\/\//i.test(s['q15Url' + n])) return toast(`El link del documento ${n} tiene que empezar con https://`, 'err');
     try { await store.saveSettings({ ...s, whatsapp: String(s.whatsapp).replace(/\D/g, '') }); settings = s; toast('Ajustes guardados ✔'); }
     catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); }
   } },
@@ -421,6 +421,8 @@ function viewSettings() {
     mk('q15Url2', 'Documento 2: link del PDF', { type: 'url', placeholder: 'https://...' }),
     mk('q15Label3', 'Documento 3: nombre del botón', { maxlength: 40 }),
     mk('q15Url3', 'Documento 3: link del PDF', { type: 'url', placeholder: 'https://...' }),
+    mk('q15Label4', 'Documento 4: nombre del botón', { maxlength: 40 }),
+    mk('q15Url4', 'Documento 4: link del PDF', { type: 'url', placeholder: 'https://...' }),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
     h('div', { class: 'fld' }, h('label', {}, 'Foto principal de inicio (opcional)'), heroFile, heroPrev),
