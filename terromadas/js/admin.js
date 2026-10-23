@@ -9,8 +9,9 @@ let tab = 'paquetes';
 
 const MAX = CONFIG.maxPerCategory;
 const PHOTO_BUDGET = 850000; // caracteres base64 por paquete (límite de Firestore: 1 MB por documento)
-const shown = (cat, ex) => packages.filter(p => (CONFIG.categories.includes(p.category) ? p.category : 'Otros') === cat && p.status !== 'paused' && p.id !== ex);
-const full = (cat, ex) => shown(cat, ex).length >= MAX;
+const catOf = c => (CONFIG.categories.includes(c) ? c : 'Otros');
+const shown = (cat, ex) => packages.filter(p => catOf(p.category) === cat && p.status !== 'paused' && p.id !== ex);
+const full = (cat, ex) => shown(catOf(cat), ex).length >= MAX;
 const catMsg = cat => `"${cat}" ya tiene ${MAX} paquetes visibles. Guardá o eliminá uno de ese tipo para poder mostrar otro.`;
 const lines = t => t.split('\n').map(s => s.trim()).filter(Boolean);
 
@@ -109,12 +110,12 @@ function rowFor(p) {
 }
 
 function setStatus(p, status) {
-  if (status !== 'paused' && p.status === 'paused' && full(p.category, p.id)) return toast(catMsg(p.category), 'err');
+  if (status !== 'paused' && p.status === 'paused' && full(p.category, p.id)) return toast(catMsg(catOf(p.category)), 'err');
   patch(p.id, { status }, { active: 'Paquete disponible', paused: 'Paquete guardado (ya no se muestra en el sitio)', soldout: 'Marcado como agotado' }[status]);
 }
 
 async function del(p) {
-  if (!confirm(`¿Eliminar "${p.title}" definitivamente?\n\nSi solo querés que no se vea, usá "Pausar".`)) return;
+  if (!confirm(`¿Eliminar "${p.title}" definitivamente?\n\nSi solo querés que no se vea, usá "Guardar sin mostrar".`)) return;
   try { await store.deletePackage(p.id); packages = packages.filter(x => x.id !== p.id); renderPanel(); toast('Paquete eliminado'); }
   catch (e) { toast('No se pudo eliminar: ' + e.message, 'err'); }
 }
