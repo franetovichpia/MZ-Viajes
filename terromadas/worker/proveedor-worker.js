@@ -37,14 +37,23 @@ function parseCards(html) {
   return items;
 }
 
-async function readSite() {
+const HEADERS = {
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+  'accept': 'text/html,application/xhtml+xml',
+  'accept-language': 'es-AR,es;q=0.9'
+};
+
+async function readSite(diag) {
   const byId = new Map();
   for (const src of SOURCES) {
     try {
-      const r = await fetch(src, { headers: { 'user-agent': 'Mozilla/5.0 (compatible; TerromadasSync/1.0)', 'accept-language': 'es-AR,es;q=0.9' } });
+      const r = await fetch(src, { headers: HEADERS });
+      const text = await r.text();
+      const cards = parseCards(text);
+      if (diag) diag.push({ src, status: r.status, type: r.headers.get('content-type'), bytes: text.length, tarjetas: cards.length, inicio: text.slice(0, 160).replace(/\s+/g, ' ') });
       if (!r.ok) continue;
-      for (const it of parseCards(await r.text())) if (it.title && !byId.has(it.id)) byId.set(it.id, it);
-    } catch { /* se prueba con la siguiente fuente */ }
+      for (const it of cards) if (it.title && !byId.has(it.id)) byId.set(it.id, it);
+    } catch (e) { if (diag) diag.push({ src, error: String((e && e.message) || e) }); }
   }
   const items = [...byId.values()]
     .filter(i => i.imageUrl.startsWith('https://') && i.url.startsWith(HOST + '/'))
@@ -65,6 +74,13 @@ export default {
   async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     if (request.method !== 'GET') return json({ error: 'Método no permitido' }, 405);
+
+    // Diagnóstico: abrir la dirección del servicio con  ?debug=1  muestra qué responde la web del proveedor
+    if (new URL(request.url).searchParams.has('debug')) {
+      const diag = [];
+      try { await readSite(diag); } catch { /* el detalle queda en diag */ }
+      return json({ diagnostico: diag });
+    }
 
     const cache = typeof caches !== 'undefined' ? caches.default : null;
     const key = new Request(new URL('/proveedor', request.url).toString());
