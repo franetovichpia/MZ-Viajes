@@ -4,7 +4,6 @@ import { h, $, fmtPrice, waLink, safeImg, toast } from './dom.js';
 
 let settings = CONFIG.defaults;
 let packages = [];
-let external = [];
 let lastFocus = null;
 const trip = { date: '', pax: '2' };
 
@@ -33,7 +32,7 @@ function priceBlock(p) {
     p.oldPrice ? h('s', {}, fmtPrice(p.oldPrice, p.currency)) : null);
 }
 
-/* ---------- vidriera (paquetes propios, máx. 5) ---------- */
+/* ---------- paquetes propios (máx. 10 por tipo) ---------- */
 function card(p) {
   const sold = p.status === 'soldout';
   const img = safeImg(p.thumb);
@@ -53,43 +52,20 @@ function card(p) {
         : h('a', { class: 'btn btn-wa', href: waLink(waNumber(), consultText(p)), target: '_blank', rel: 'noopener noreferrer' }, 'Consultar')));
 }
 
-/* ---------- más opciones (proveedor, máx. 5, redirige) ---------- */
-function extUrl(u) {
-  try {
-    const x = new URL(u);
-    const host = x.hostname.replace(/^www\./, '');
-    return x.protocol === 'https:' && (host === CONFIG.externalHost || host.endsWith('.' + CONFIG.externalHost)) ? x.href : '';
-  } catch { return ''; }
-}
-
-const httpsImg = u => (typeof u === 'string' && /^https:\/\//i.test(u) ? u : '');
-
-function extCard(x) {
-  const url = extUrl(x.url);
-  const img = safeImg(x.image) || httpsImg(x.imageUrl);
-  return h('article', { class: 'pcard' },
-    h('a', { class: 'pimg', href: url, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `Ver ${x.title} en ${CONFIG.externalHost}` },
-      img ? h('img', { src: img, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer', onerror: e => e.currentTarget.remove() }) : null),
-    h('div', { class: 'pbody' },
-      h('div', { class: 'dest' }, 'Terromadas Viajes'),
-      h('h3', {}, x.title),
-      x.subtitle ? h('div', { class: 'meta' }, h('span', {}, x.subtitle)) : null,
-      x.price ? h('div', { class: 'price' }, h('b', { style: 'font-size:20px' }, x.price)) : null),
-    h('div', { class: 'pact' },
-      h('a', { class: 'btn btn-red', href: url, target: '_blank', rel: 'noopener noreferrer' }, 'Ver detalle y reservar')));
-}
+let filtro = '';
 
 function render() {
-  const vid = packages.filter(p => p.offer && p.status !== 'paused')
-    .sort((a, b) => (a.offerOrder || 0) - (b.offerOrder || 0)).slice(0, CONFIG.maxOffers);
+  const vis = packages.filter(p => p.status !== 'paused').map(p => ({ ...p, category: CONFIG.categories.includes(p.category) ? p.category : 'Otros' }));
+  const cats = CONFIG.categories.filter(c => vis.some(p => p.category === c));
+  if (filtro && !cats.includes(filtro)) filtro = '';
+  const f = $('#vidFilters');
+  f.replaceChildren(...(cats.length > 1 ? [['', 'Todos'], ...cats.map(c => [c, c])].map(([v, l]) =>
+    h('button', { class: 'fchip', type: 'button', 'aria-pressed': filtro === v, onclick: () => { filtro = v; render(); } }, l)) : []));
+  const list = [];
+  for (const c of cats) if (!filtro || filtro === c) list.push(...vis.filter(p => p.category === c).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, CONFIG.maxPerCategory));
   const vc = $('#vidCards'); vc.replaceChildren();
-  if (vid.length) vid.forEach(p => vc.append(card(p)));
-  else vc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Estamos actualizando nuestra vidriera. Escribinos por WhatsApp y te asesoramos.'));
-
-  const ext = external.filter(x => extUrl(x.url)).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, CONFIG.maxExternal);
-  const ec = $('#extCards'); ec.replaceChildren(...ext.map(extCard));
-  $('#mas').hidden = !ext.length;
-  $('#navMas').hidden = !ext.length;
+  if (list.length) list.forEach(p => vc.append(card(p)));
+  else vc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Estamos actualizando nuestros paquetes. Escribinos por WhatsApp y te asesoramos.'));
 }
 
 async function openModal(id) {
@@ -231,10 +207,7 @@ async function init() {
   });
 
   try {
-    let manual = [], auto = [];
-    [settings, packages, manual, auto] = await Promise.all([store.getSettings(), store.listPackages(), store.listExternal().catch(() => []), loadAuto()]);
-    const seen = new Set(manual.map(m => m.url));
-    external = [...manual, ...auto.filter(a => !seen.has(a.url))];
+    [settings, packages] = await Promise.all([store.getSettings(), store.listPackages()]);
   } catch (e) {
     console.error(e);
     toast('No pudimos cargar los paquetes. Probá recargar la página.', 'err');

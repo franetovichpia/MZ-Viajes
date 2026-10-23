@@ -6,11 +6,8 @@ export const CONFIG = {
     appId: ''
   },
   demoPassword: 'terromadas',
-  maxOffers: 5,
-  maxExternal: 5,
-  externalHost: 'terromadasviajes.com',
-  proveedorApi: '', // dirección del Worker de Cloudflare (se completa al publicarlo)
-  categories: ['Argentina', 'Brasil', 'Caribe', 'Cruceros', 'Salidas grupales', 'Viajes de 15', 'Full Day'],
+  maxPerCategory: 10,
+  categories: ['Argentina', 'Brasil', 'Caribe', 'Otros'],
   defaults: {
     whatsapp: '5493571347478',
     armaUrl: 'https://www.terromadasviajes.com',
