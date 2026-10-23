@@ -176,7 +176,7 @@ function applySettings() {
 
 // Salidas de terromadasviajes.com: primero el servicio en vivo (Worker); si falla, el archivo guardado
 async function loadAuto() {
-  for (const u of [CONFIG.proveedorApi, 'data/proveedor.json']) {
+  for (const u of [CONFIG.proveedorApi]) {
     if (!u) continue;
     const list = await loadAutoFrom(u);
     if (list.length) return list;

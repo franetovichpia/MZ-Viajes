@@ -64,6 +64,8 @@ async function showPanel() {
   app.replaceChildren(h('p', { style: 'padding:30px' }, 'Cargando…'));
   try { [settings, packages, external] = await Promise.all([store.getSettings(), store.listPackages(), store.listExternal().catch(() => [])]); }
   catch (e) { toast('Error al cargar: ' + e.message, 'err'); }
+  const inc = takeIncoming();
+  if (inc) { tab = 'proveedor'; setTimeout(() => openIncoming(inc), 50); }
   renderPanel();
 }
 
@@ -249,7 +251,56 @@ async function openForm(pkg) {
 
 
 /* ---------- proveedor (paquetes externos, máx. 5) ---------- */
+// Datos que llegan desde el marcador "Agregar a Terromadas" (se abre desde terromadasviajes.com)
+function takeIncoming() {
+  const m = /^#agregar=(.+)$/.exec(location.hash);
+  if (!m) return null;
+  history.replaceState(null, '', location.pathname + location.search);
+  try {
+    const d = JSON.parse(decodeURIComponent(m[1]));
+    return { title: String(d.title || '').slice(0, 80), url: String(d.url || ''), imageUrl: String(d.imageUrl || ''), price: String(d.price || '').slice(0, 40) };
+  } catch { return null; }
+}
+function openIncoming(d) {
+  if (external.length >= CONFIG.maxExternal) return toast(`Ya hay ${CONFIG.maxExternal} cargadas. Eliminá una para agregar la nueva.`, 'err');
+  if (external.some(e => e.url === d.url)) return toast('Esa salida ya está cargada.', 'err');
+  openExternalForm(null, d);
+}
+
+// Marcador para la barra del navegador: lee la página del paquete abierta y la manda a este panel
+function bookmarkletHref() {
+  const target = location.origin + location.pathname;
+  const code = "(function(){if(!/\\/es\\/idea\\//.test(location.pathname)){alert('Primero abrí un paquete (la página con el detalle del viaje) y volvé a tocar este botón.');return}var m=function(p){var e=document.querySelector('meta[property=\"'+p+'\"]');return e?e.content:''};var t=m('og:title'),i=m('og:image'),pr='';var x=/^(.*?)\\s+desde\\s+(US\\$\\s?[\\d.,]+)\\s*$/i.exec(t);if(x){t=x[1];pr='Desde '+x[2].replace(/(\\d),(\\d{3})/g,'$1.$2')+' por persona'}var d={title:t,url:location.href.split('#')[0],imageUrl:i,price:pr};window.open('" + target + "#agregar='+encodeURIComponent(JSON.stringify(d)),'_blank')})();";
+  return 'javascript:' + encodeURIComponent(code);
+}
+
 function viewExternal() {
+  const list = [...external].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  const full = list.length >= CONFIG.maxExternal;
+  const bm = h('a', { href: bookmarkletHref(), class: 'btn btn-clay', style: 'padding:6px 14px;min-height:34px;font-size:14px;cursor:grab', title: 'Arrastralo a la barra de marcadores', onclick: e => { e.preventDefault(); toast('No hagas clic: arrastralo a la barra de marcadores del navegador', 'err'); } }, '➕ Agregar a Terromadas');
+  return h('div', {},
+    h('div', { class: 'bar' }, h('h2', {}, `Más opciones (${list.length}/${CONFIG.maxExternal})`),
+      h('button', { class: 'btn btn-clay', disabled: full, onclick: () => openExternalForm(null) }, '+ Agregar a mano')),
+    h('p', { class: 'help', style: 'margin-bottom:12px' }, `Salidas de ${CONFIG.externalHost} que se muestran en el sitio como "Salidas y paquetes recientes". El cliente que elige una va directo a esa página. Se muestran hasta ${CONFIG.maxExternal}: para agregar otra cuando ya hay ${CONFIG.maxExternal}, eliminá una.`),
+    h('div', { class: 'help', style: 'margin-bottom:16px' },
+      h('b', {}, 'Cargar una salida en 15 segundos'),
+      h('ol', { style: 'margin:8px 0 0 18px;padding:0;display:grid;gap:6px' },
+        h('li', {}, 'Una sola vez: arrastrá este botón a la barra de marcadores del navegador (Chrome o Edge, en la compu): ', bm),
+        h('li', {}, `Entrá a ${CONFIG.externalHost} y abrí el paquete que querés mostrar (la página con el detalle).`),
+        h('li', {}, 'Tocá el marcador "Agregar a Terromadas". Se abre este panel con el título, el precio, la foto y el link ya cargados: revisá y tocá Guardar.'))),
+    list.length ? h('div', { class: 'list' }, list.map(x => h('div', { class: 'row' },
+      (safeImg(x.image) || x.imageUrl) ? h('img', { src: safeImg(x.image) || x.imageUrl, alt: '', referrerpolicy: 'no-referrer' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
+      h('div', {}, h('h3', {}, x.title), h('div', { class: 'sub' }, [x.subtitle, x.price].filter(Boolean).join(' · ') || '—'), h('div', { class: 'sub', style: 'word-break:break-all' }, x.url)),
+      h('div', { class: 'acts' },
+        h('button', { class: 'sm edit', onclick: () => openExternalForm(x) }, 'Editar'),
+        h('button', { class: 'sm danger', onclick: async () => {
+          if (!confirm(`¿Eliminar "${x.title}"?`)) return;
+          try { await store.deleteExternal(x.id); external = external.filter(e => e.id !== x.id); renderPanel(); toast('Eliminado'); }
+          catch (e) { toast('No se pudo eliminar: ' + e.message, 'err'); }
+        } }, 'Eliminar'))))) : h('div', { class: 'empty' }, 'Todavía no cargaste salidas del proveedor.'));
+}
+
+function viewExternalOld() {
   const list = [...external].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   const full = list.length >= CONFIG.maxExternal;
   return h('div', {},
@@ -268,9 +319,9 @@ function viewExternal() {
         } }, 'Eliminar'))))) : h('div', { class: 'empty' }, 'Todavía no cargaste salidas del proveedor.'));
 }
 
-function openExternalForm(item) {
+function openExternalForm(item, prefill) {
   const isNew = !item;
-  const x = item ? { ...item } : { id: uid(), createdAt: Date.now() };
+  const x = item ? { ...item } : { id: uid(), createdAt: Date.now(), ...(prefill || {}) };
   let image = x.image || ''; let changed = false;
   const modal = h('div', { class: 'modal open', role: 'dialog', 'aria-modal': 'true', 'aria-label': isNew ? 'Agregar del proveedor' : 'Editar' });
   const sheet = h('div', { class: 'sheet formsheet' });
