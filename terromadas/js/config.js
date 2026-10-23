@@ -31,6 +31,7 @@ export const CONFIG = {
     city: 'Río Tercero, Córdoba',
     heroImage: '',
     q15Title: 'Tu viaje de quince',
+    q15Mode: 'ver',
     q15Text: 'Elegí tu destino y descargá la información: itinerarios, qué incluye y tarifas.',
     q15Label1: 'Crucero', q15Url1: '',
     q15Label2: 'Camboriú', q15Url2: '',

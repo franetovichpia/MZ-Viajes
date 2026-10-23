@@ -405,7 +405,7 @@ function viewSettings() {
     e.preventDefault();
     if (!/^\d{10,15}$/.test(String(s.whatsapp).replace(/\D/g, ''))) return toast('Revisá el número de WhatsApp (con código de país, ej: 5491112345678)', 'err');
     if (s.armaUrl && !/^https?:\/\//i.test(s.armaUrl)) return toast('El link de "Armá tu viaje" debe empezar con https://', 'err');
-    for (const n of [1, 2, 3, 4]) if (s['q15Url' + n] && !/^https:\/\//i.test(s['q15Url' + n])) return toast(`El link del documento ${n} tiene que empezar con https://`, 'err');
+    for (const n of [1, 2, 3, 4]) if (s['q15Url' + n] && !/^(https:\/\/|docs\/)/i.test(s['q15Url' + n])) return toast(`El link del documento ${n} tiene que empezar con https:// (o con docs/ si el archivo está dentro del sitio)`, 'err');
     for (const n of [1, 2, 3, 4]) if (s['q15ImgUrl' + n] && !/^https:\/\//i.test(s['q15ImgUrl' + n])) return toast(`El link de la foto del documento ${n} tiene que empezar con https://`, 'err');
     try { await store.saveSettings({ ...s, whatsapp: String(s.whatsapp).replace(/\D/g, '') }); settings = s; toast('Ajustes guardados ✔'); }
     catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); }
@@ -429,14 +429,16 @@ function viewSettings() {
     mk('q15Title', 'Banner "Viajes de 15": título', { maxlength: 60 }),
     mk('q15Text', 'Banner "Viajes de 15": texto', { maxlength: 200 }, '', 'textarea'),
     mk('q15Label1', 'Documento 1: nombre del botón', { maxlength: 40, placeholder: 'Ej: Bariloche 2027' }),
-    mk('q15Url1', 'Documento 1: link del PDF', { type: 'url', placeholder: 'https://drive.google.com/...' }, 'Subí el PDF a Google Drive → Compartir → "Cualquier persona con el enlace" → Copiar enlace. Si dejás los links vacíos, el banner no se muestra.'),
+    mk('q15Url1', 'Documento 1: link del PDF', { type: 'text', placeholder: 'https://drive.google.com/...' }, 'Subí el PDF a Google Drive → Compartir → "Cualquier persona con el enlace" → Copiar enlace. Si dejás los links vacíos, el banner no se muestra.'),
     mk('q15Label2', 'Documento 2: nombre del botón', { maxlength: 40 }),
-    mk('q15Url2', 'Documento 2: link del PDF', { type: 'url', placeholder: 'https://...' }),
+    mk('q15Url2', 'Documento 2: link del PDF', { type: 'text', placeholder: 'https://...' }),
     mk('q15Label3', 'Documento 3: nombre del botón', { maxlength: 40 }),
-    mk('q15Url3', 'Documento 3: link del PDF', { type: 'url', placeholder: 'https://...' }),
+    mk('q15Url3', 'Documento 3: link del PDF', { type: 'text', placeholder: 'https://...' }),
     mk('q15Label4', 'Documento 4: nombre del botón', { maxlength: 40 }),
-    mk('q15Url4', 'Documento 4: link del PDF', { type: 'url', placeholder: 'https://...' }),
+    mk('q15Url4', 'Documento 4: link del PDF', { type: 'text', placeholder: 'https://...' }),
     ...[1, 2, 3, 4].map(photoField),
+    h('div', { class: 'fld' }, h('label', {}, 'Banner de quince: al tocar una tarjeta'),
+      h('select', { onchange: e => { s.q15Mode = e.target.value; } }, [['ver', 'Abrir el PDF para verlo (recomendado)'], ['descargar', 'Descargar el PDF directamente']].map(([v, l]) => h('option', { value: v, selected: (s.q15Mode || 'ver') === v }, l)))),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
     h('div', { class: 'fld' }, h('label', {}, 'Foto principal de inicio (opcional)'), heroFile, heroPrev),
