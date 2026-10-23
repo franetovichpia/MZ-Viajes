@@ -47,15 +47,15 @@ const demo = {
     delete s.photos[id];
     persist(s);
   },
-  async listExternal() { return load().external || DEMO_EXTERNAL; },
+  async listExternal() { return load().external || []; },
   async saveExternal(x) {
-    const s = load(); const list = (s.external || DEMO_EXTERNAL).slice();
+    const s = load(); const list = (s.external || []).slice();
     const i = list.findIndex(e => e.id === x.id);
     if (i >= 0) list[i] = x; else list.push(x);
     s.external = list; persist(s);
   },
   async deleteExternal(id) {
-    const s = load(); s.external = (s.external || DEMO_EXTERNAL).filter(e => e.id !== id); persist(s);
+    const s = load(); s.external = (s.external || []).filter(e => e.id !== id); persist(s);
   },
   async login(_email, pw) {
     if (pw !== CONFIG.demoPassword) throw new Error('Contraseña incorrecta');

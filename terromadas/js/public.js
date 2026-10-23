@@ -174,6 +174,17 @@ function applySettings() {
   if (s.email) { const m = $('#footMail'); m.href = 'mailto:' + s.email; m.textContent = s.email; m.hidden = false; }
 }
 
+// Salidas de terromadasviajes.com traídas por scripts/sync-proveedor.mjs (archivo data/proveedor.json)
+async function loadAuto() {
+  try {
+    const r = await fetch('data/proveedor.json', { cache: 'no-store' });
+    if (!r.ok) return [];
+    const j = await r.json();
+    const list = Array.isArray(j.items) ? j.items : [];
+    return list.map((x, i) => ({ id: 'auto' + x.id, title: x.title, subtitle: x.subtitle || '', price: x.price || '', url: x.url, imageUrl: x.imageUrl, createdAt: list.length - i }));
+  } catch { return []; }
+}
+
 async function init() {
   $('#year').textContent = new Date().getFullYear();
   const burger = $('#burger'), menu = $('#menu');
@@ -195,7 +206,10 @@ async function init() {
   });
 
   try {
-    [settings, packages, external] = await Promise.all([store.getSettings(), store.listPackages(), store.listExternal().catch(() => [])]);
+    let manual = [], auto = [];
+    [settings, packages, manual, auto] = await Promise.all([store.getSettings(), store.listPackages(), store.listExternal().catch(() => []), loadAuto()]);
+    const seen = new Set(manual.map(m => m.url));
+    external = [...manual, ...auto.filter(a => !seen.has(a.url))];
   } catch (e) {
     console.error(e);
     toast('No pudimos cargar los paquetes. Probá recargar la página.', 'err');
