@@ -166,26 +166,6 @@ function applySettings() {
   if (s.email) { const m = $('#footMail'); m.href = 'mailto:' + s.email; m.textContent = s.email; m.hidden = false; }
 }
 
-// Salidas de terromadasviajes.com: primero el servicio en vivo (Worker); si falla, el archivo guardado
-async function loadAuto() {
-  for (const u of [CONFIG.proveedorApi]) {
-    if (!u) continue;
-    const list = await loadAutoFrom(u);
-    if (list.length) return list;
-  }
-  return [];
-}
-
-async function loadAutoFrom(url) {
-  try {
-    const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(6000) });
-    if (!r.ok) return [];
-    const j = await r.json();
-    const list = Array.isArray(j.items) ? j.items : [];
-    return list.map((x, i) => ({ id: 'auto' + x.id, title: x.title, subtitle: x.subtitle || '', price: x.price || '', url: x.url, imageUrl: x.imageUrl, createdAt: list.length - i }));
-  } catch { return []; }
-}
-
 async function init() {
   $('#year').textContent = new Date().getFullYear();
   const burger = $('#burger'), menu = $('#menu');
