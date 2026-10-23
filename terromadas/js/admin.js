@@ -389,17 +389,27 @@ function viewSettings() {
     const x = e.target.files[0]; if (!x) return;
     try { const [d] = await fit([await toDataUrl(x, 900, .7)], 300000); s.aboutImage = d; aboutPrev.src = d; aboutPrev.hidden = false; } catch (ex) { toast(ex.message, 'err'); }
   } });
-  const photoField = n => {
+  const docCard = n => {
     const cur = () => safeImg(s['q15Img' + n]) || s['q15ImgUrl' + n] || '';
-    const prev = h('img', { alt: '', referrerpolicy: 'no-referrer', style: 'max-width:160px;border-radius:10px', hidden: !cur(), src: cur() || undefined });
+    const prev = h('img', { alt: '', referrerpolicy: 'no-referrer', class: 'doc-prev', hidden: !cur(), src: cur() || undefined });
     const file = h('input', { type: 'file', accept: 'image/*', onchange: async e => {
       const x = e.target.files[0]; if (!x) return;
       try { const [d] = await fit([await toDataUrl(x, 800, .7)], 150000); s['q15Img' + n] = d; prev.src = d; prev.hidden = false; } catch (ex) { toast(ex.message, 'err'); }
     } });
     const link = h('input', { type: 'url', value: s['q15ImgUrl' + n] || '', placeholder: 'https://... (opcional, en vez de subir un archivo)' });
     link.addEventListener('input', () => { s['q15ImgUrl' + n] = link.value.trim(); if (/^https:\/\//i.test(link.value.trim())) { prev.src = link.value.trim(); prev.hidden = false; } });
-    const clear = h('button', { class: 'sm', type: 'button', onclick: () => { delete s['q15Img' + n]; s['q15ImgUrl' + n] = ''; link.value = ''; prev.hidden = true; } }, 'Quitar foto');
-    return h('div', { class: 'fld' }, h('label', {}, `Documento ${n}: foto de la tarjeta`), file, link, prev, clear);
+    const clear = h('button', { class: 'sm', type: 'button', onclick: () => { delete s['q15Img' + n]; s['q15ImgUrl' + n] = ''; link.value = ''; file.value = ''; prev.hidden = true; } }, 'Quitar foto');
+    const name = h('input', { value: s['q15Label' + n] || '', maxlength: 40, placeholder: n === 1 ? 'Ej: Bariloche 2027' : '' });
+    name.addEventListener('input', () => { s['q15Label' + n] = name.value; });
+    const url = h('input', { type: 'text', value: s['q15Url' + n] || '', placeholder: 'https://drive.google.com/...' });
+    url.addEventListener('input', () => { s['q15Url' + n] = url.value.trim(); });
+    return h('fieldset', { class: 'doc-card' },
+      h('legend', {}, `Tarjeta ${n}`),
+      h('div', { class: 'doc-grid' },
+        h('div', { class: 'doc-photo' }, prev, h('div', { class: 'doc-photo-ctl' }, h('label', {}, 'Foto'), file, link, clear)),
+        h('div', { class: 'doc-data' },
+          h('div', { class: 'fld' }, h('label', {}, 'Nombre del botón'), name),
+          h('div', { class: 'fld' }, h('label', {}, 'Link del PDF'), url, n === 1 ? h('small', {}, 'Subí el PDF a Google Drive → Compartir → "Cualquier persona con el enlace" → Copiar enlace. Si dejás los links vacíos, el banner no se muestra.') : null))));
   };
   return h('form', { style: 'display:grid;gap:14px;max-width:640px', onsubmit: async e => {
     e.preventDefault();
@@ -428,15 +438,7 @@ function viewSettings() {
     mk('tiktok', 'TikTok (usuario, opcional)'),
     mk('q15Title', 'Banner "Viajes de 15": título', { maxlength: 60 }),
     mk('q15Text', 'Banner "Viajes de 15": texto', { maxlength: 200 }, '', 'textarea'),
-    mk('q15Label1', 'Documento 1: nombre del botón', { maxlength: 40, placeholder: 'Ej: Bariloche 2027' }),
-    mk('q15Url1', 'Documento 1: link del PDF', { type: 'text', placeholder: 'https://drive.google.com/...' }, 'Subí el PDF a Google Drive → Compartir → "Cualquier persona con el enlace" → Copiar enlace. Si dejás los links vacíos, el banner no se muestra.'),
-    mk('q15Label2', 'Documento 2: nombre del botón', { maxlength: 40 }),
-    mk('q15Url2', 'Documento 2: link del PDF', { type: 'text', placeholder: 'https://...' }),
-    mk('q15Label3', 'Documento 3: nombre del botón', { maxlength: 40 }),
-    mk('q15Url3', 'Documento 3: link del PDF', { type: 'text', placeholder: 'https://...' }),
-    mk('q15Label4', 'Documento 4: nombre del botón', { maxlength: 40 }),
-    mk('q15Url4', 'Documento 4: link del PDF', { type: 'text', placeholder: 'https://...' }),
-    ...[1, 2, 3, 4].map(photoField),
+    ...[1, 2, 3, 4].map(docCard),
     h('div', { class: 'fld' }, h('label', {}, 'Banner de quince: al tocar una tarjeta'),
       h('select', { onchange: e => { s.q15Mode = e.target.value; } }, [['ver', 'Abrir el PDF para verlo (recomendado)'], ['descargar', 'Descargar el PDF directamente']].map(([v, l]) => h('option', { value: v, selected: (s.q15Mode || 'ver') === v }, l)))),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),

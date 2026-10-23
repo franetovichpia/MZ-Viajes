@@ -65,3 +65,18 @@
 .sm.danger{background:#fdeaea;border-color:#f1bcbc;color:#a02424}
 .sm.danger:hover{background:#f9d4d4}
 .btn:disabled{background:#d8cfc9;color:#fff;box-shadow:none}
+
+/* Tarjetas del banner de quince: foto + datos juntos */
+.doc-card{border:1px solid #e3d6c4;border-radius:14px;padding:14px;margin:0;background:#fffaf2}
+.doc-card legend{font-weight:700;padding:0 8px;color:#701f1d}
+.doc-grid{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:start}
+.doc-photo{display:grid;gap:8px}
+.doc-prev{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}
+.doc-photo-ctl{display:grid;gap:6px}
+.doc-photo-ctl input{max-width:100%;font-size:.85rem}
+.doc-data{display:grid;gap:10px}
+@media(max-width:560px){.doc-grid{grid-template-columns:1fr}}
+.doc-photo-ctl label{font-size:.85rem;font-weight:700;color:#701f1d}
+.doc-photo,.doc-photo-ctl{min-width:0}
+.doc-photo-ctl input[type=url],.doc-photo-ctl input[type=file]{width:100%;box-sizing:border-box}
+.doc-photo-ctl .sm{width:100%}
