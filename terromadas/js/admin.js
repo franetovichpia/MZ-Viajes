@@ -255,7 +255,7 @@ function viewExternal() {
   return h('div', {},
     h('div', { class: 'bar' }, h('h2', {}, `Más opciones (${list.length}/${CONFIG.maxExternal})`),
       h('button', { class: 'btn btn-clay', disabled: full, onclick: () => openExternalForm(null) }, '+ Agregar')),
-    h('p', { class: 'help', style: 'margin-bottom:16px' }, `Acá cargás hasta ${CONFIG.maxExternal} salidas o paquetes de ${CONFIG.externalHost}. Se muestran en el sitio como "Salidas y paquetes recientes" y, al elegirlos, el cliente va a esa página. Para agregar uno nuevo con ${CONFIG.maxExternal} cargados, eliminá uno.`),
+    h('p', { class: 'help', style: 'margin-bottom:16px' }, `Las salidas más nuevas de ${CONFIG.externalHost} se muestran solas en el sitio, no hace falta cargar nada. Usá esta lista solo si querés destacar una salida puntual: aparece primero. En total el sitio muestra como máximo ${CONFIG.maxExternal}.`),
     list.length ? h('div', { class: 'list' }, list.map(x => h('div', { class: 'row' },
       (safeImg(x.image) || x.imageUrl) ? h('img', { src: safeImg(x.image) || x.imageUrl, alt: '', referrerpolicy: 'no-referrer' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
       h('div', {}, h('h3', {}, x.title), h('div', { class: 'sub' }, [x.subtitle, x.price].filter(Boolean).join(' · ') || '—'), h('div', { class: 'sub', style: 'word-break:break-all' }, x.url)),

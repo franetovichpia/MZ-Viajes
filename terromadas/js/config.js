@@ -9,6 +9,7 @@ export const CONFIG = {
   maxOffers: 5,
   maxExternal: 5,
   externalHost: 'terromadasviajes.com',
+  proveedorApi: '', // dirección del Worker de Cloudflare (se completa al publicarlo)
   categories: ['Argentina', 'Brasil', 'Caribe', 'Cruceros', 'Salidas grupales', 'Viajes de 15', 'Full Day'],
   defaults: {
     whatsapp: '5493571347478',

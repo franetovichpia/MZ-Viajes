@@ -174,10 +174,19 @@ function applySettings() {
   if (s.email) { const m = $('#footMail'); m.href = 'mailto:' + s.email; m.textContent = s.email; m.hidden = false; }
 }
 
-// Salidas de terromadasviajes.com traídas por scripts/sync-proveedor.mjs (archivo data/proveedor.json)
+// Salidas de terromadasviajes.com: primero el servicio en vivo (Worker); si falla, el archivo guardado
 async function loadAuto() {
+  for (const u of [CONFIG.proveedorApi, 'data/proveedor.json']) {
+    if (!u) continue;
+    const list = await loadAutoFrom(u);
+    if (list.length) return list;
+  }
+  return [];
+}
+
+async function loadAutoFrom(url) {
   try {
-    const r = await fetch('data/proveedor.json', { cache: 'no-store' });
+    const r = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(6000) });
     if (!r.ok) return [];
     const j = await r.json();
     const list = Array.isArray(j.items) ? j.items : [];
