@@ -102,10 +102,10 @@ function rowFor(p) {
     h('div', {}, h('h3', {}, p.title), h('div', { class: 'sub' }, `${p.destination || '—'} · ${p.duration || '—'} · ${fmtPrice(p.price, p.currency)}`),
       h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), p.offer ? h('span', { class: 'chip offer' }, 'En vidriera') : null)),
     h('div', { class: 'acts' },
-      p.status !== 'paused' ? h('button', { class: 'sm', onclick: () => toggleVidriera(p) }, p.offer ? 'Sacar de la vidriera' : 'Poner en vidriera') : null,
-      h('button', { class: 'sm', onclick: () => openForm(p) }, 'Editar'),
-      h('button', { class: 'sm', onclick: () => setStatus(p, p.status === 'paused' ? 'active' : 'paused') }, p.status === 'paused' ? 'Reactivar' : 'Guardar sin mostrar'),
-      h('button', { class: 'sm', onclick: () => setStatus(p, p.status === 'soldout' ? 'active' : 'soldout') }, p.status === 'soldout' ? 'Hay cupo' : 'Agotado'),
+      p.status !== 'paused' ? h('button', { class: p.offer ? 'sm vid on' : 'sm vid', onclick: () => toggleVidriera(p) }, p.offer ? 'Sacar de la vidriera' : 'Poner en vidriera') : null,
+      h('button', { class: 'sm edit', onclick: () => openForm(p) }, 'Editar'),
+      h('button', { class: p.status === 'paused' ? 'sm ok' : 'sm hide', onclick: () => setStatus(p, p.status === 'paused' ? 'active' : 'paused') }, p.status === 'paused' ? 'Reactivar' : 'Guardar sin mostrar'),
+      h('button', { class: p.status === 'soldout' ? 'sm ok' : 'sm sold', onclick: () => setStatus(p, p.status === 'soldout' ? 'active' : 'soldout') }, p.status === 'soldout' ? 'Hay cupo' : 'Marcar agotado'),
       h('button', { class: 'sm danger', onclick: () => del(p) }, 'Eliminar')));
 }
 
@@ -257,10 +257,10 @@ function viewExternal() {
       h('button', { class: 'btn btn-clay', disabled: full, onclick: () => openExternalForm(null) }, '+ Agregar')),
     h('p', { class: 'help', style: 'margin-bottom:16px' }, `Acá cargás hasta ${CONFIG.maxExternal} salidas o paquetes de ${CONFIG.externalHost}. Se muestran en el sitio como "Salidas y paquetes recientes" y, al elegirlos, el cliente va a esa página. Para agregar uno nuevo con ${CONFIG.maxExternal} cargados, eliminá uno.`),
     list.length ? h('div', { class: 'list' }, list.map(x => h('div', { class: 'row' },
-      safeImg(x.image) ? h('img', { src: x.image, alt: '' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
+      (safeImg(x.image) || x.imageUrl) ? h('img', { src: safeImg(x.image) || x.imageUrl, alt: '', referrerpolicy: 'no-referrer' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
       h('div', {}, h('h3', {}, x.title), h('div', { class: 'sub' }, [x.subtitle, x.price].filter(Boolean).join(' · ') || '—'), h('div', { class: 'sub', style: 'word-break:break-all' }, x.url)),
       h('div', { class: 'acts' },
-        h('button', { class: 'sm', onclick: () => openExternalForm(x) }, 'Editar'),
+        h('button', { class: 'sm edit', onclick: () => openExternalForm(x) }, 'Editar'),
         h('button', { class: 'sm danger', onclick: async () => {
           if (!confirm(`¿Eliminar "${x.title}"?`)) return;
           try { await store.deleteExternal(x.id); external = external.filter(e => e.id !== x.id); renderPanel(); toast('Eliminado'); }
@@ -281,10 +281,12 @@ function openExternalForm(item) {
     title: h('input', { value: x.title || '', required: true, maxlength: 80 }),
     url: h('input', { type: 'url', value: x.url || '', required: true, placeholder: `https://www.${CONFIG.externalHost}/...` }),
     subtitle: h('input', { value: x.subtitle || '', maxlength: 80, placeholder: 'Ej: Punta Cana · 7 noches' }),
-    price: h('input', { value: x.price || '', maxlength: 40, placeholder: 'Ej: Desde USD 1.499' })
+    price: h('input', { value: x.price || '', maxlength: 40, placeholder: 'Ej: Desde USD 1.499' }),
+    imageUrl: h('input', { type: 'url', value: x.imageUrl || '', placeholder: 'https://...' })
   };
   const fld = (label, el, hint) => h('div', { class: 'fld' }, h('label', {}, label), el, hint ? h('small', {}, hint) : null);
-  const prev = h('img', { alt: '', style: 'max-width:220px;border-radius:10px', hidden: !safeImg(image), src: safeImg(image) || undefined });
+  const prev = h('img', { alt: '', referrerpolicy: 'no-referrer', style: 'max-width:220px;border-radius:10px', hidden: !(safeImg(image) || x.imageUrl), src: safeImg(image) || x.imageUrl || undefined });
+  f.imageUrl.addEventListener('input', () => { const u = f.imageUrl.value.trim(); if (/^https:\/\//i.test(u)) { prev.src = u; prev.hidden = false; } });
   const file = h('input', { type: 'file', accept: 'image/*', onchange: async e => {
     const fl = e.target.files[0]; if (!fl) return;
     try { const [d] = await fit([await toDataUrl(fl, 800, .7)], 250000); image = d; changed = true; prev.src = d; prev.hidden = false; }
@@ -296,8 +298,10 @@ function openExternalForm(item) {
     let host = '';
     try { const u = new URL(f.url.value.trim()); host = u.protocol === 'https:' ? u.hostname.replace(/^www\./, '') : ''; } catch {}
     if (!(host === CONFIG.externalHost || host.endsWith('.' + CONFIG.externalHost))) return toast(`El link tiene que ser de ${CONFIG.externalHost} y empezar con https://`, 'err');
-    if (!image) return toast('Subí una foto para la tarjeta', 'err');
-    const out = { ...x, title: f.title.value.trim(), url: f.url.value.trim(), subtitle: f.subtitle.value.trim(), price: f.price.value.trim(), image };
+    const iu = f.imageUrl.value.trim();
+    if (iu && !/^https:\/\//i.test(iu)) return toast('El link de la foto tiene que empezar con https://', 'err');
+    if (!image && !iu) return toast('Subí una foto o pegá el link de la foto', 'err');
+    const out = { ...x, title: f.title.value.trim(), url: f.url.value.trim(), subtitle: f.subtitle.value.trim(), price: f.price.value.trim(), image, imageUrl: iu };
     save.disabled = true; save.textContent = 'Guardando…';
     try {
       await store.saveExternal(out);
@@ -310,7 +314,8 @@ function openExternalForm(item) {
     fld(`Link a ${CONFIG.externalHost}`, f.url, 'Copiá la dirección de la página del paquete y pegala acá'),
     fld('Detalle breve (opcional)', f.subtitle),
     fld('Precio (opcional, texto libre)', f.price),
-    h('div', { class: 'fld' }, h('label', {}, 'Foto de la tarjeta'), file, prev),
+    fld('Link de la foto (opcional)', f.imageUrl, 'Clic derecho sobre la foto en terromadasviajes.com → "Copiar dirección de la imagen" y pegala acá. Si preferís, subí el archivo abajo.'),
+    h('div', { class: 'fld' }, h('label', {}, 'O subí la foto desde tu compu'), file, prev),
     h('div', { style: 'display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap' }, h('button', { class: 'btn btn-line', type: 'button', style: 'color:var(--ink)', onclick: close }, 'Cancelar'), save));
   sheet.replaceChildren(h('button', { class: 'close', type: 'button', onclick: close, 'aria-label': 'Cerrar' }, '×'), form);
 }

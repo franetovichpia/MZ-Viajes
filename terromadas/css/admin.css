@@ -49,3 +49,19 @@
   .row{grid-template-columns:64px 1fr}.row img{width:64px;height:52px}.row .acts{grid-column:1/-1;justify-content:flex-start}
   .two{grid-template-columns:1fr}
 }
+
+/* botones del panel por color */
+.sm{transition:background .15s,transform .1s}
+.sm:active{transform:translateY(1px)}
+.sm.vid{background:var(--teal);border-color:var(--teal);color:#fff}
+.sm.vid:hover{background:#335f68}
+.sm.vid.on{background:#e3f0f2;border-color:#b9d6db;color:var(--teal)}
+.sm.vid.on:hover{background:#d3e7ea}
+.sm.edit{background:var(--peach);border-color:#f3cf86;color:var(--wine)}
+.sm.edit:hover{background:#fdd88f}
+.sm.hide{background:#efe9e4;border-color:#dcd2ca;color:#5f524d}
+.sm.sold{background:#fde3c8;border-color:#f6c595;color:#9a4a12}
+.sm.ok{background:#dcead9;border-color:#b5d3ae;color:#25563a}
+.sm.danger{background:#fdeaea;border-color:#f1bcbc;color:#a02424}
+.sm.danger:hover{background:#f9d4d4}
+.btn:disabled{background:#d8cfc9;color:#fff;box-shadow:none}

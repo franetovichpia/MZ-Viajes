@@ -229,3 +229,12 @@ footer .legajo{color:var(--gold);font-weight:700}
 @media(max-width:1000px){.nos{grid-template-columns:1fr}}
 @media(max-width:760px){.nos-name{flex-direction:column;text-align:center;padding:28px 22px}}
 [hidden]{display:none!important}
+
+/* botones: jerarquía de color y feedback */
+.btn{box-shadow:0 2px 0 rgba(42,26,25,.08)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn-red{background:linear-gradient(180deg,#c9201b,var(--red))}
+.btn-wa{box-shadow:0 6px 16px rgba(31,157,85,.28)}
+.btn-detail{background:#fff;color:var(--teal);border:2px solid var(--teal)}
+.btn-detail:hover{background:var(--teal);color:#fff}
+.btn-gold{box-shadow:0 6px 16px rgba(254,198,82,.4)}

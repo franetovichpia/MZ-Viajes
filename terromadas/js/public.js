@@ -47,7 +47,7 @@ function card(p) {
       h('div', { class: 'meta' }, p.duration ? h('span', {}, '🗓 ' + p.duration) : null, p.dates?.[0] ? h('span', {}, 'Salida: ' + p.dates[0].split(' al ')[0]) : null),
       priceBlock(p)),
     h('div', { class: 'pact' },
-      h('button', { class: 'btn btn-line', style: 'color:var(--wine)', onclick: () => openModal(p.id) }, 'Ver detalle'),
+      h('button', { class: 'btn btn-detail', onclick: () => openModal(p.id) }, 'Ver detalle'),
       sold
         ? h('span', { class: 'btn btn-wa', 'aria-disabled': 'true' }, 'Agotado')
         : h('a', { class: 'btn btn-wa', href: waLink(waNumber(), consultText(p)), target: '_blank', rel: 'noopener noreferrer' }, 'Consultar')));
@@ -62,12 +62,14 @@ function extUrl(u) {
   } catch { return ''; }
 }
 
+const httpsImg = u => (typeof u === 'string' && /^https:\/\//i.test(u) ? u : '');
+
 function extCard(x) {
   const url = extUrl(x.url);
-  const img = safeImg(x.image);
+  const img = safeImg(x.image) || httpsImg(x.imageUrl);
   return h('article', { class: 'pcard' },
     h('a', { class: 'pimg', href: url, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `Ver ${x.title} en ${CONFIG.externalHost}` },
-      img ? h('img', { src: img, alt: '', loading: 'lazy' }) : null),
+      img ? h('img', { src: img, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer', onerror: e => e.currentTarget.remove() }) : null),
     h('div', { class: 'pbody' },
       h('div', { class: 'dest' }, 'Terromadas Viajes'),
       h('h3', {}, x.title),
