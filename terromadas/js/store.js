@@ -83,10 +83,15 @@ async function fb() {
 const real = {
   async getSettings() {
     const { db, f } = await fb();
-    const snap = await f.getDoc(f.doc(db, 'site', 'settings'));
-    return { ...CONFIG.defaults, ...(snap.exists() ? snap.data() : {}) };
+    const [snap, snapImg] = await Promise.all([f.getDoc(f.doc(db, 'site', 'settings')), f.getDoc(f.doc(db, 'site', 'q15'))]);
+    return { ...CONFIG.defaults, ...(snap.exists() ? snap.data() : {}), ...(snapImg.exists() ? snapImg.data() : {}) };
   },
-  async saveSettings(v) { const { db, f } = await fb(); await f.setDoc(f.doc(db, 'site', 'settings'), v); },
+  async saveSettings(v) {
+    const { db, f } = await fb();
+    const imgs = {}, rest = {};
+    for (const [k, val] of Object.entries(v)) (k.startsWith('q15Img') && !k.startsWith('q15ImgUrl') ? imgs : rest)[k] = val;
+    await Promise.all([f.setDoc(f.doc(db, 'site', 'settings'), rest), f.setDoc(f.doc(db, 'site', 'q15'), imgs)]);
+  },
   async listPackages() {
     const { db, f } = await fb();
     const snap = await f.getDocs(f.collection(db, 'packages'));

@@ -162,7 +162,7 @@ function applySettings() {
   const ai = safeImg(s.aboutImage);
   if (ai) { const im = $('#aboutImg'); im.src = ai; im.hidden = false; $('#aboutArt').hidden = true; }
   $('#footAddr').textContent = s.address || ''; $('#footHours').textContent = s.hours || ''; $('#footLegajo').textContent = s.legajo || '';
-  const docs = [1, 2, 3, 4].map(n => ({ label: s['q15Label' + n], url: s['q15Url' + n] })).filter(d => /^https:\/\//i.test(d.url || ''));
+  const docs = [1, 2, 3, 4].map(n => ({ label: s['q15Label' + n], url: s['q15Url' + n], img: s['q15Img' + n], imgUrl: s['q15ImgUrl' + n] })).filter(d => /^https:\/\//i.test(d.url || ''));
   $('#quince').hidden = !docs.length; $('#navQ15').hidden = !docs.length;
   if (docs.length) {
     $('#q15Title').textContent = s.q15Title || 'Viajes de 15';
@@ -170,7 +170,10 @@ function applySettings() {
     $('#q15Docs').replaceChildren(...docs.map(d => {
       const ic = document.createElement('span');
       ic.innerHTML = '<svg class="i" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>';
-      return h('a', { class: 'btn btn-red', href: d.url, target: '_blank', rel: 'noopener noreferrer' }, ic.firstChild, d.label || 'Ver información');
+      const img = safeImg(d.img) || (/^https:\/\//i.test(d.imgUrl || '') ? d.imgUrl : '');
+      return h('a', { class: 'q15-card', href: d.url, target: '_blank', rel: 'noopener noreferrer' },
+        img ? h('img', { src: img, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer', onerror: e => { const ph = document.createElement('span'); ph.className = 'q15-ph'; e.currentTarget.replaceWith(ph); } }) : h('span', { class: 'q15-ph' }),
+        h('span', { class: 'q15-cap' }, h('b', {}, d.label || 'Ver información'), h('span', {}, ic.firstChild, 'Ver información')));
     }));
   }
   const hi = safeImg(s.heroImage);
