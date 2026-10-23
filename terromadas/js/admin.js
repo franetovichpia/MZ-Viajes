@@ -10,7 +10,7 @@ let tab = 'paquetes';
 
 const MAX = CONFIG.maxOffers;
 const PHOTO_BUDGET = 850000; // caracteres base64 por paquete (límite de Firestore: 1 MB por documento)
-const activeOffers = (ex) => packages.filter(p => p.offer && p.status === 'active' && p.id !== ex).sort((a, b) => (a.offerOrder || 0) - (b.offerOrder || 0));
+const activeOffers = (ex) => packages.filter(p => p.offer && p.status !== 'paused' && p.id !== ex).sort((a, b) => (a.offerOrder || 0) - (b.offerOrder || 0));
 const lines = t => t.split('\n').map(s => s.trim()).filter(Boolean);
 
 /* ---------- imágenes ---------- */
@@ -91,26 +91,50 @@ const CAP_MSG = `La vidriera ya tiene ${MAX} paquetes. Quitá uno en la pestaña
 function viewPackages() {
   const sorted = [...packages].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   return h('div', {},
-    h('div', { class: 'bar' }, h('h2', {}, `Paquetes (${packages.length})`), h('button', { class: 'btn btn-clay', onclick: () => openForm(null) }, '+ Nuevo paquete')),
+    h('div', { class: 'bar' }, h('h2', {}, `Paquetes (${packages.length})`), h('span', { class: 'count' }, `En vidriera: ${activeOffers().length} de ${MAX}`), h('button', { class: 'btn btn-clay', onclick: () => openForm(null) }, '+ Nuevo paquete')),
     sorted.length ? h('div', { class: 'list' }, sorted.map(rowFor)) : h('div', { class: 'empty' }, 'Todavía no cargaste paquetes. Tocá "Nuevo paquete".'));
 }
 
 function rowFor(p) {
-  const st = { active: ['Activo', ''], paused: ['Pausado', 'paused'], soldout: ['Agotado', 'soldout'] }[p.status] || ['Activo', ''];
+  const st = { active: ['Disponible', ''], paused: ['Guardado', 'paused'], soldout: ['Agotado', 'soldout'] }[p.status] || ['Activo', ''];
   return h('div', { class: 'row' },
     safeImg(p.thumb) ? h('img', { src: p.thumb, alt: '' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
     h('div', {}, h('h3', {}, p.title), h('div', { class: 'sub' }, `${p.destination || '—'} · ${p.duration || '—'} · ${fmtPrice(p.price, p.currency)}`),
       h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), p.offer ? h('span', { class: 'chip offer' }, 'En vidriera') : null)),
     h('div', { class: 'acts' },
+      p.status !== 'paused' ? h('button', { class: 'sm', onclick: () => toggleVidriera(p) }, p.offer ? 'Sacar de la vidriera' : 'Poner en vidriera') : null,
       h('button', { class: 'sm', onclick: () => openForm(p) }, 'Editar'),
-      h('button', { class: 'sm', onclick: () => setStatus(p, p.status === 'paused' ? 'active' : 'paused') }, p.status === 'paused' ? 'Activar' : 'Pausar'),
+      h('button', { class: 'sm', onclick: () => setStatus(p, p.status === 'paused' ? 'active' : 'paused') }, p.status === 'paused' ? 'Reactivar' : 'Guardar sin mostrar'),
       h('button', { class: 'sm', onclick: () => setStatus(p, p.status === 'soldout' ? 'active' : 'soldout') }, p.status === 'soldout' ? 'Hay cupo' : 'Agotado'),
       h('button', { class: 'sm danger', onclick: () => del(p) }, 'Eliminar')));
 }
 
 function setStatus(p, status) {
-  if (status === 'active' && p.offer && capFull(p.id)) return toast(CAP_MSG, 'err');
-  patch(p.id, { status }, { active: 'Paquete activo', paused: 'Paquete pausado (no se ve en el sitio)', soldout: 'Marcado como agotado' }[status]);
+  const data = status === 'paused' && p.offer ? { status, offer: false, offerOrder: 0 } : { status };
+  patch(p.id, data, { active: 'Paquete disponible', paused: 'Paquete guardado (sale de la vidriera)', soldout: 'Marcado como agotado' }[status]);
+}
+
+function toggleVidriera(p) {
+  if (p.offer) return patch(p.id, { offer: false, offerOrder: 0 }, 'Quitado de la vidriera');
+  if (!capFull(p.id)) return patch(p.id, { offer: true, offerOrder: activeOffers(p.id).length + 1 }, 'Agregado a la vidriera');
+  // Vidriera llena: se elige cuál sale para dejar lugar
+  const modal = h('div', { class: 'modal open', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Reemplazar en la vidriera' });
+  const close = () => { modal.remove(); document.body.style.overflow = ''; };
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  modal.append(h('div', { class: 'sheet formsheet' },
+    h('button', { class: 'close', type: 'button', onclick: close, 'aria-label': 'Cerrar' }, '×'),
+    h('div', { style: 'padding:24px;display:grid;gap:12px' },
+      h('h2', { style: 'font-size:24px' }, 'La vidriera está llena'),
+      h('p', {}, `Para mostrar "${p.title}" tenés que sacar uno. ¿Cuál reemplazás?`),
+      activeOffers(p.id).map(c => h('button', { class: 'sm', style: 'text-align:left;padding:12px', onclick: async () => {
+        const slot = c.offerOrder || 1;
+        try {
+          await store.patchPackage(c.id, { offer: false, offerOrder: 0 }); Object.assign(c, { offer: false, offerOrder: 0 });
+          await store.patchPackage(p.id, { offer: true, offerOrder: slot }); Object.assign(p, { offer: true, offerOrder: slot });
+          close(); renderPanel(); toast('Vidriera actualizada');
+        } catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); }
+      } }, `Sacar "${c.title}"`)))));
+  document.body.append(modal); document.body.style.overflow = 'hidden';
 }
 
 async function del(p) {
@@ -175,7 +199,7 @@ async function openForm(pkg) {
     description: h('textarea', { maxlength: 1200 }, p.description || ''),
     includes: h('textarea', { placeholder: 'Aéreo ida y vuelta\nTraslados\n7 noches de hotel' }, (p.includes || []).join('\n')),
     category: h('select', {}, [h('option', { value: '' }, 'Sin tipo'), ...CONFIG.categories.map(c => h('option', { value: c, selected: p.category === c }, c))]),
-    status: h('select', {}, [['active', 'Activo (visible)'], ['paused', 'Pausado (oculto)'], ['soldout', 'Agotado (visible, sin consulta)']].map(([v, l]) => h('option', { value: v, selected: p.status === v }, l))),
+    status: h('select', {}, [['active', 'Disponible'], ['paused', 'Guardado (no se muestra en el sitio)'], ['soldout', 'Agotado']].map(([v, l]) => h('option', { value: v, selected: p.status === v }, l))),
     offer: h('input', { type: 'checkbox', checked: !!p.offer, id: 'offchk' })
   };
   const fld = (label, el, hint) => h('div', { class: 'fld' }, h('label', {}, label), el, hint ? h('small', {}, hint) : null);
@@ -195,11 +219,11 @@ async function openForm(pkg) {
   const form = h('form', { onsubmit: async e => {
     e.preventDefault();
     const status = f.status.value, offer = f.offer.checked;
-    if (offer && status === 'active' && capFull(p.id)) return toast(CAP_MSG, 'err');
+    if (offer && status !== 'paused' && capFull(p.id)) return toast(CAP_MSG, 'err');
     const out = { ...p, title: f.title.value.trim(), destination: f.destination.value.trim(), duration: f.duration.value.trim(),
       price: f.price.value === '' ? null : Number(f.price.value), oldPrice: f.oldPrice.value === '' ? null : Number(f.oldPrice.value),
       currency: f.currency.value, priceNote: f.priceNote.value.trim(), dates: lines(f.dates.value), description: f.description.value.trim(),
-      includes: lines(f.includes.value), category: f.category.value, status, offer, offerOrder: offer ? (p.offerOrder || (activeOffers(p.id).length + 1)) : 0 };
+      includes: lines(f.includes.value), category: f.category.value, status, offer: offer && status !== 'paused', offerOrder: offer && status !== 'paused' ? (p.offerOrder || (activeOffers(p.id).length + 1)) : 0 };
     save.disabled = true; save.textContent = 'Guardando…';
     try {
       if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 480, .7) : '';
@@ -211,7 +235,7 @@ async function openForm(pkg) {
     h('h2', { style: 'font-size:26px' }, isNew ? 'Nuevo paquete' : 'Editar paquete'),
     fld('Nombre del paquete', f.title), fld('Destino', f.destination),
     h('div', { class: 'two' }, fld('Duración', f.duration), fld('Tipo de viaje', f.category)),
-    fld('Estado', f.status),
+    fld('Estado', f.status, '"Disponible" y "Agotado" pueden ir en la vidriera. "Guardado" lo deja solo en el panel, sin mostrarlo.'),
     h('div', { class: 'two' }, fld('Precio', f.price), fld('Moneda', f.currency)),
     h('div', { class: 'two' }, fld('Precio anterior (opcional)', f.oldPrice, 'Se muestra tachado'), fld('Aclaración del precio', f.priceNote)),
     fld('Fechas de salida', f.dates, 'Una por línea'),

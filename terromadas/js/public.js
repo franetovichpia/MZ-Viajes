@@ -78,7 +78,7 @@ function extCard(x) {
 }
 
 function render() {
-  const vid = packages.filter(p => p.offer && p.status === 'active')
+  const vid = packages.filter(p => p.offer && p.status !== 'paused')
     .sort((a, b) => (a.offerOrder || 0) - (b.offerOrder || 0)).slice(0, CONFIG.maxOffers);
   const vc = $('#vidCards'); vc.replaceChildren();
   if (vid.length) vid.forEach(p => vc.append(card(p)));
