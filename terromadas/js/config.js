@@ -11,7 +11,7 @@ export const CONFIG = {
   // Fotos del inicio: están en el código (carpeta img/hero), no se cambian desde el panel
   // Se escriben sin extensión: sirve .jpg, .jpeg o .webp. Para sumar más fotos, agregalas acá (4, 5, 6...)
   heroSlides: ['img/hero/lago', 'img/hero/mar', 'img/hero/rio', 'img/hero/catedral'],
-  heroInterval: 5000, // milisegundos entre foto y foto
+  heroInterval: 2500, // milisegundos entre foto y foto
   categories: ['Argentina', 'Brasil', 'Caribe', 'Salidas grupales', 'Y más'],
   defaults: {
     whatsapp: '5493571347478',
