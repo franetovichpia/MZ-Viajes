@@ -550,7 +550,7 @@ footer div > a:not(.btn):hover{transform:translateX(5px)}
 @keyframes introText{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes introBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 #intro{position:fixed;inset:-80px;padding:80px;box-sizing:border-box;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
-  background:linear-gradient(135deg,rgba(181,19,16,.74),rgba(112,31,29,.86));
+  background:linear-gradient(135deg,rgba(181,19,16,.88),rgba(112,31,29,.94));
   -webkit-backdrop-filter:blur(34px) saturate(1.35);backdrop-filter:blur(34px) saturate(1.35);
   animation:introOut .95s 2s cubic-bezier(.77,0,.18,1) forwards}
 .intro-logo{width:min(300px,62vw);height:auto;animation:introLogo .9s .15s cubic-bezier(.2,.8,.2,1) both;filter:drop-shadow(0 10px 30px rgba(0,0,0,.25))}
