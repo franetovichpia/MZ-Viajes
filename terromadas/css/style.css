@@ -415,3 +415,130 @@ footer div > a{transition:transform .25s ease,color .2s ease}
   .ripple{display:none}
   #progress{display:none}
 }
+
+/* ===== movimiento v3: de "Paquetes" hacia abajo (el hero queda como está) ===== */
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes sheetIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes waPulse{0%{box-shadow:0 0 0 0 rgba(31,157,85,.5)}70%{box-shadow:0 0 0 18px rgba(31,157,85,0)}100%{box-shadow:0 0 0 0 rgba(31,157,85,0)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(70px)}to{opacity:1;transform:none}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(-90px)}to{opacity:1;transform:none}}
+@keyframes fadeRight{from{opacity:0;transform:translateX(90px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:translateY(40px) scale(.86)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:perspective(900px) translateY(80px) rotateX(16deg) scale(.9)}to{opacity:1;transform:none}}
+@keyframes fadeSoft{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.3) rotate(-24deg)}60%{transform:scale(1.2) rotate(5deg)}to{opacity:1;transform:none}}
+@keyframes floaty{0%,100%{translate:0 0}50%{translate:0 -26px}}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+@keyframes mqLeft{to{transform:translateX(-50%)}}
+@keyframes mqRight{from{transform:translateX(-50%)}to{transform:none}}
+
+/* entrada de la portada y detalles generales */
+.hero-in > *{animation:fadeUp .9s cubic-bezier(.2,.7,.2,1) both}
+.hero-in h1{animation-delay:.1s}.hero-in .script{animation-delay:.3s}.hero-in .lead{animation-delay:.45s}.hero-in .actions{animation-delay:.6s}
+.search{animation:fadeUp .9s .75s cubic-bezier(.2,.7,.2,1) both}
+.nav{transition:box-shadow .3s ease,background .3s ease}
+.nav.scrolled{box-shadow:0 8px 24px rgba(112,31,29,.12)}
+.wa-fab{animation:waPulse 2.8s 2s infinite}
+.modal.open{animation:fadeIn .25s ease}
+.modal.open .sheet{animation:sheetIn .4s cubic-bezier(.2,.7,.2,1)}
+
+/* aparecer al hacer scroll */
+.anim .reveal{opacity:0}
+.anim .reveal.in{opacity:1;animation:riseIn 1s cubic-bezier(.2,.8,.2,1) var(--d,0ms) backwards}
+.anim .reveal.in.fx-left{animation-name:fadeLeft}
+.anim .reveal.in.fx-right{animation-name:fadeRight}
+.anim .reveal.in.fx-zoom{animation-name:zoomIn}
+.anim .pcard.reveal.in{animation-name:cardIn;animation-duration:1s}
+.anim .trust .it.in svg{animation:pop .8s .3s backwards}
+.soft .reveal.in,.soft .pcard.reveal.in{animation:fadeSoft .6s var(--d,0ms) backwards}
+
+/* títulos que suben palabra por palabra */
+.anim .reveal.fx-split{opacity:1}
+.anim .reveal.fx-split.in{animation:none}
+.split .w{display:inline-block;overflow:hidden;vertical-align:top;padding:.1em .05em .26em;margin:-.1em -.05em -.26em}
+.split .w > span{display:inline-block;transform:translateY(118%);transition:transform .95s cubic-bezier(.2,.8,.2,1) calc(var(--i,0) * 85ms + 150ms)}
+.split.in .w > span{transform:none}
+.sh h2 .script,.cbox h2 .script{background:linear-gradient(rgba(254,198,82,.85),rgba(254,198,82,.85)) no-repeat 0 92%/100% 8px;transition:background-size .9s .5s ease}
+.anim .reveal:not(.in) .script{background-size:0 8px}
+
+/* capas de fondo con parallax */
+section.s.has-blobs{position:relative;overflow-x:clip}
+section.s.has-blobs > .wrap{position:relative;z-index:1}
+.blob{position:absolute;z-index:0;border-radius:50%;filter:blur(46px);opacity:.8;pointer-events:none;transform:translate3d(0,var(--py,0px),0);animation:floaty 9s ease-in-out infinite}
+.blob.gold{background:radial-gradient(circle,rgba(254,198,82,.85),rgba(254,198,82,0) 70%)}
+.blob.red{background:radial-gradient(circle,rgba(181,19,16,.42),rgba(181,19,16,0) 70%);animation-delay:-3s}
+.blob.teal{background:radial-gradient(circle,rgba(63,116,127,.5),rgba(63,116,127,0) 70%);animation-delay:-6s}
+.arma .mark{transform:translate3d(0,var(--py,0px),0)}
+.spot{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .4s ease;background:radial-gradient(520px circle at var(--sx,50%) var(--sy,30%),rgba(254,198,82,.3),rgba(254,198,82,0) 62%)}
+.has-spot:hover .spot{opacity:1}
+
+/* ruta de avión que se dibuja con el scroll */
+main{position:relative}
+main > section.s,main > .trust{position:relative;z-index:1}
+#route{position:absolute;left:0;z-index:0;pointer-events:none;overflow:visible}
+#route .base{fill:none;stroke:rgba(181,19,16,.24);stroke-width:2.5;stroke-dasharray:3 13;stroke-linecap:round}
+#route .done{fill:none;stroke:#b51310;stroke-width:3.5;stroke-linecap:round;opacity:.85;filter:drop-shadow(0 0 6px rgba(181,19,16,.35))}
+#route .plane{fill:#b51310;stroke:#fff;stroke-width:3;paint-order:stroke;opacity:0;transition:opacity .4s ease}
+#route.on .plane{opacity:1}
+
+/* cintas en movimiento */
+.mq-wrap{position:relative;overflow:hidden;padding:48px 0 40px;margin-top:20px;z-index:1}
+.mq{display:flex;overflow:hidden;width:106%;margin-left:-3%;white-space:nowrap}
+.mq-red{background:linear-gradient(90deg,var(--red),var(--wine));color:#fff;transform:rotate(-1.6deg);padding:16px 0;box-shadow:0 14px 30px rgba(112,31,29,.25)}
+.mq-gold{background:var(--gold);color:var(--wine);transform:rotate(1.2deg);margin-top:-22px;padding:12px 0}
+.mq-track{display:flex;width:max-content;animation:mqLeft 38s linear infinite}
+.mq-track.rev{animation:mqRight 46s linear infinite}
+.mq-grp{display:flex;align-items:center;flex:none}
+.mq span{font:700 clamp(22px,3.2vw,38px)/1 Poppins,sans-serif;text-transform:uppercase;letter-spacing:.05em;padding:0 22px}
+.mq i{font-style:normal;color:var(--gold);font-size:1.3em}
+.mq-gold i{color:var(--red)}
+.mq-gold span{-webkit-text-stroke:1.5px var(--wine);color:transparent}
+.mq-wrap:hover .mq-track{animation-play-state:paused}
+
+/* tarjetas: vidrio, 3D, foto que se revela y precio que cuenta */
+.pcard{background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);border:1px solid rgba(255,255,255,.8);box-shadow:0 10px 30px rgba(112,31,29,.10);transition:transform .55s cubic-bezier(.2,.7,.2,1),box-shadow .3s ease;position:relative}
+.pcard:hover{transform:perspective(900px) translateY(-8px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));box-shadow:0 26px 50px rgba(112,31,29,.22);transition:transform .14s ease-out,box-shadow .3s ease}
+.pcard::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s ease;background:radial-gradient(280px circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.6),rgba(255,255,255,0) 60%)}
+.pcard:hover::after{opacity:1}
+.pimg{overflow:hidden}
+.pimg img{transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.pcard:hover .pimg img{transform:scale(1.08)}
+.anim .pcard.reveal .pimg img{clip-path:inset(0 0 100% 0);transform:scale(1.3)}
+.anim .pcard.reveal.in .pimg img{clip-path:inset(0);transform:none;transition:clip-path 1s .25s cubic-bezier(.7,0,.2,1),transform 1.4s .25s cubic-bezier(.2,.7,.2,1)}
+.anim .pcard.reveal.in:hover .pimg img{transform:scale(1.08);transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.soft .pcard.reveal .pimg img{clip-path:none;transform:none}
+.price b{font-variant-numeric:tabular-nums}
+
+/* vidrio en otros bloques */
+.trust .row,.cbox{background:rgba(255,255,255,.66);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);border:1px solid rgba(255,255,255,.8)}
+.fchip{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .2s ease,color .2s ease,transform .2s ease,border-color .2s ease}
+.fchip:hover{transform:translateY(-2px)}
+.fchip[aria-pressed="true"]{box-shadow:0 8px 18px rgba(181,19,16,.28)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.pcard,.trust .row,.cbox,.fchip{background:#fff}}
+
+/* microinteracciones */
+#progress{position:fixed;left:0;top:0;height:3px;width:100%;z-index:70;pointer-events:none;background:linear-gradient(90deg,var(--gold),var(--red));transform-origin:left;transform:scaleX(var(--p,0))}
+.btn{position:relative;overflow:hidden;transform:translate(var(--tx,0px),var(--ty,0px));transition:transform .2s ease-out,background .2s ease,box-shadow .2s ease,color .2s ease}
+.btn:hover{transform:translate(var(--tx,0px),calc(var(--ty,0px) - 2px))}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:ripple .65s ease-out forwards;pointer-events:none}
+.btn-wa:hover{box-shadow:0 10px 24px rgba(31,157,85,.38)}
+.cform input,.cform select,.cform textarea{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.cform input:focus,.cform select:focus,.cform textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 4px rgba(181,19,16,.14);transform:translateY(-1px)}
+.q15-card{transition:transform .3s ease,box-shadow .3s ease}
+.q15-card:hover{transform:translateY(-6px) rotate(-.6deg)}
+footer div > a:not(.btn){transition:transform .25s ease,color .2s ease}
+footer div > a:not(.btn):hover{transform:translateX(5px)}
+.soc a{transition:transform .25s ease,background .2s ease,color .2s ease}
+.soc a:hover{transform:translateY(-3px) rotate(-8deg)}
+.nos-name{transition:transform .4s ease}
+.nos-name:hover{transform:translateY(-4px)}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-in > *,.search,.wa-fab,.modal.open,.modal.open .sheet,.blob,.anim .trust .it.in svg{animation:none}
+  .mq-track,.mq-track.rev{animation:none}
+  .pcard:hover,.q15-card:hover,.nos-name:hover,.soc a:hover{transform:none}
+  .btn,.btn:hover{transform:none}
+  .ripple{display:none}
+}
