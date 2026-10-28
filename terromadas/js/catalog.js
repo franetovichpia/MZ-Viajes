@@ -56,7 +56,7 @@ function priceBlock(p) {
 export function card(p, showCat = false) {
   const sold = p.status === 'soldout';
   const img = safeImg(p.thumb);
-  return h('article', { class: 'pcard' },
+  return h('article', { class: 'pcard reveal' },
     h('button', { class: 'pimg', onclick: () => openModal(p.id), 'aria-label': `Ver detalle de ${p.title}` },
       img ? h('img', { src: img, alt: '', loading: 'lazy' }) : null,
       sold ? h('span', { class: 'tag sold' }, 'AGOTADO') : p.oldPrice ? h('span', { class: 'tag' }, 'PROMO') : null,

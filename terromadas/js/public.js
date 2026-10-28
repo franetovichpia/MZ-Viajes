@@ -1,5 +1,6 @@
 import { CONFIG } from './config.js';
 import { h, $, waLink, safeImg } from './dom.js';
+import { initAnim, reveal } from './anim.js';
 import { state, trip, waNumber, fmtDate, visible, featured, FEATURED, card, destinoUrl, openModal, loadCatalog, initChrome, applyCommon, mountContactForm } from './catalog.js';
 
 let sel = '';
@@ -14,9 +15,10 @@ function renderDestinos() {
   const vc = $('#vidCards'); vc.replaceChildren();
   const more = $('#vidMore'); more.replaceChildren();
   if (!sel) { vc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Estamos actualizando nuestros paquetes. Escribinos por WhatsApp y te asesoramos.')); return; }
-  if (sel === FEATURED) { feat.forEach(p => vc.append(card(p, true))); return; }
+  if (sel === FEATURED) { feat.forEach(p => vc.append(card(p, true))); reveal(vc); return; }
   const all = visible(sel);
   all.slice(0, 4).forEach(p => vc.append(card(p)));
+  reveal(vc);
   more.append(h('a', { class: 'btn btn-red', href: destinoUrl(sel) }, `Ver más de ${sel}${all.length > 4 ? ` (${all.length})` : ''}`));
 }
 
@@ -74,6 +76,7 @@ async function initHero() {
 
 async function init() {
   initChrome();
+  initAnim();
 
   // Cotización rápida: arma el mensaje de WhatsApp con destino, fecha y pasajeros
   $('#sDate').addEventListener('change', e => { trip.date = e.target.value; renderDestinos(); });
