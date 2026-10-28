@@ -1,6 +1,6 @@
 // Piezas compartidas entre el inicio y las páginas de cada destino.
 import { CONFIG } from './config.js';
-import { store } from './store.js';
+import { store, isDemo } from './store.js';
 import { h, $, fmtPrice, waLink, safeImg, toast } from './dom.js';
 
 export const state = { settings: CONFIG.defaults, packages: [] };
@@ -25,9 +25,32 @@ export const featured = () => state.packages
   .sort((a, b) => (b.oldPrice ? 1 : 0) - (a.oldPrice ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0))
   .slice(0, CONFIG.maxFeatured);
 
+// Copia local del catálogo (15 minutos): al volver al inicio o entrar a un destino se ve al instante,
+// y mientras tanto se pide la versión nueva. En modo demo no se usa.
+const CACHE_KEY = 'terromadas-catalog-v1', CACHE_MS = 15 * 60 * 1000;
+
+export function loadFromCache() {
+  if (isDemo) return false;
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (c && c.packages && Date.now() - c.t < CACHE_MS) { state.settings = c.settings; state.packages = c.packages; return true; }
+  } catch { /* sin copia */ }
+  return false;
+}
+
+function saveCache() {
+  if (isDemo) return;
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), settings: state.settings, packages: state.packages })); }
+  catch { try { localStorage.removeItem(CACHE_KEY); } catch { /* nada */ } }
+}
+
+// Devuelve true si lo que llegó es distinto de lo que ya se estaba mostrando
 export async function loadCatalog() {
+  const prev = JSON.stringify([state.settings, state.packages]);
   try { [state.settings, state.packages] = await Promise.all([store.getSettings(), store.listPackages()]); }
-  catch (e) { console.error(e); toast('No pudimos cargar los paquetes. Probá recargar la página.', 'err'); }
+  catch (e) { console.error(e); toast('No pudimos cargar los paquetes. Probá recargar la página.', 'err'); return false; }
+  saveCache();
+  return JSON.stringify([state.settings, state.packages]) !== prev;
 }
 
 export function fmtDate(iso) {
@@ -58,7 +81,7 @@ export function card(p, showCat = false) {
   const img = safeImg(p.thumb);
   return h('article', { class: 'pcard reveal' },
     h('button', { class: 'pimg', onclick: () => openModal(p.id), 'aria-label': `Ver detalle de ${p.title}` },
-      img ? h('img', { src: img, alt: '', loading: 'lazy' }) : null,
+      img ? h('img', { src: img, alt: '', loading: 'lazy', decoding: 'async' }) : null,
       sold ? h('span', { class: 'tag sold' }, 'AGOTADO') : p.oldPrice ? h('span', { class: 'tag' }, 'PROMO') : null,
       showCat ? h('span', { class: 'tag cat' }, catOf(p.category)) : null),
     h('div', { class: 'pbody' },

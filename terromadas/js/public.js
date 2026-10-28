@@ -1,7 +1,7 @@
 import { CONFIG } from './config.js';
 import { h, $, waLink, safeImg } from './dom.js';
 import { initAnim, reveal } from './anim.js';
-import { state, trip, waNumber, fmtDate, visible, featured, FEATURED, card, destinoUrl, openModal, loadCatalog, initChrome, applyCommon, mountContactForm } from './catalog.js';
+import { state, trip, waNumber, fmtDate, visible, featured, FEATURED, card, destinoUrl, openModal, loadCatalog, loadFromCache, initChrome, applyCommon, mountContactForm } from './catalog.js';
 
 let sel = '';
 
@@ -93,10 +93,11 @@ async function init() {
   });
 
   initHero(); // las fotos de la portada empiezan a bajar ya, en paralelo con los datos
-  await loadCatalog();
-  applySettings();
-  applyCommon();
-  renderDestinos();
+  const cached = loadFromCache();
+  const paint = () => { applySettings(); applyCommon(); renderDestinos(); };
+  if (cached) paint(); // se ve al instante con la copia local
+  const changed = await loadCatalog();
+  if (!cached || changed) paint();
   initHero();
   mountContactForm($('#contactForm'));
   const m = location.hash.match(/^#paquete=(.+)$/);
