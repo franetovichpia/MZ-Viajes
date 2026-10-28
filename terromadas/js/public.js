@@ -53,7 +53,7 @@ function applySettings() {
 async function initHero() {
   const box = $('#heroSlides');
   const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
-  const first = async base => { for (const ext of ['.jpg', '.jpeg', '.webp']) { const im = await load(base + ext); if (im) return im; } return null; };
+  const first = async base => { for (const ext of ['.jpg', '.jpeg', '.webp', '.png']) { const im = await load(base + ext); if (im) return im; } return null; };
   const ok = (await Promise.all(CONFIG.heroSlides.map(first))).filter(Boolean);
   if (!ok.length) return;
   ok.forEach(im => { im.alt = ''; box.append(im); });
