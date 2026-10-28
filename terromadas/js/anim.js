@@ -11,25 +11,6 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 let io;
 
 /* ---------- aparecer al hacer scroll ---------- */
-function countUp(card) {
-  if (reduce) return;
-  const b = card.querySelector('.price b');
-  if (!b || b.dataset.done) return;
-  b.dataset.done = '1';
-  const m = /^(\D*?)([\d.]+)(\D*)$/.exec(b.textContent.trim());
-  if (!m) return;
-  const target = parseInt(m[2].replace(/\./g, ''), 10);
-  if (!target) return;
-  const fmt = n => new Intl.NumberFormat('es-AR').format(Math.round(n));
-  const delay = parseFloat(card.style.getPropertyValue('--d')) || 0;
-  b.textContent = m[1] + '0' + m[3];
-  setTimeout(() => {
-    const t0 = performance.now(), dur = 1200;
-    const step = t => { const k = Math.min(1, (t - t0) / dur); b.textContent = m[1] + fmt(target * (1 - Math.pow(1 - k, 3))) + m[3]; if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  }, delay + 250);
-}
-
 export function reveal(root = document) {
   const els = $$('.reveal:not(.in)', root);
   if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
@@ -37,7 +18,6 @@ export function reveal(root = document) {
     if (!en.isIntersecting) return;
     en.target.classList.add('in');
     io.unobserve(en.target);
-    if (en.target.classList.contains('pcard')) countUp(en.target);
   }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
   els.forEach((e, i) => { if (!e.style.getPropertyValue('--d')) e.style.setProperty('--d', Math.min(i, 7) * 90 + 'ms'); io.observe(e); });
 }
