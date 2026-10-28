@@ -164,7 +164,7 @@ async function openForm(pkg) {
   const form = h('form', { onsubmit: async e => {
     e.preventDefault();
     const status = f.status.value;
-    if (!f.category.value) return toast('Elegí el tipo de viaje (Argentina, Brasil, Caribe u Otros)', 'err');
+    if (!f.category.value) return toast('Elegí el tipo de viaje (' + CONFIG.categories.join(', ') + ')', 'err');
     if (status !== 'paused' && full(f.category.value, p.id)) return toast(catMsg(f.category.value), 'err');
     const out = { ...p, title: f.title.value.trim(), destination: f.destination.value.trim(), duration: f.duration.value.trim(),
       price: f.price.value === '' ? null : Number(f.price.value), oldPrice: f.oldPrice.value === '' ? null : Number(f.oldPrice.value),

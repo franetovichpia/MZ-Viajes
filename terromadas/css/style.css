@@ -266,3 +266,30 @@ footer .legajo{color:var(--gold);font-weight:700}
 .fchips:empty{display:none}
 .fchip{border:1.5px solid var(--line);background:#fff;color:var(--wine);font:inherit;font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px;cursor:pointer}
 .fchip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
+
+/* destinos: 4 tarjetas, "ver más", encabezado de destino y contacto */
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.more{display:flex;justify-content:center;margin-top:26px}
+.more:empty{display:none}
+.pdesc{font-size:14px;color:#5c4744;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .pbody h3{font-size:18px}
+a.fchip{text-decoration:none;display:inline-block}
+.dhero{background:linear-gradient(135deg,var(--red),var(--wine));color:#fff;padding:44px 0 40px}
+.dhero .eyebrow{color:var(--gold)}
+.dhero h1{font-size:clamp(34px,5vw,56px);font-weight:700;margin:0}
+.dhero p{color:#f6d9d6;margin:8px 0 0}
+.dhero .back{color:#fff;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;margin-bottom:18px;opacity:.9}
+.dhero .back:hover{opacity:1;text-decoration:underline}
+.cbox{display:grid;grid-template-columns:1fr 1.2fr;gap:36px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:34px;padding:44px 40px;box-shadow:0 8px 24px rgba(112,31,29,.06)}
+.cbox h2{font-size:clamp(26px,3.6vw,38px);font-weight:700}
+.cbox h2 .script{font-size:1.2em;color:var(--red)}
+.cbox p{color:var(--muted)}
+.cform{display:grid;gap:14px}
+.cform .fld{display:grid;gap:6px}
+.cform label{font-weight:700;font-size:14px;color:var(--wine)}
+.cform input,.cform select,.cform textarea{padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:#fff;font:inherit;min-height:48px;width:100%;box-sizing:border-box}
+.cform textarea{min-height:110px;resize:vertical}
+.cf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cf-note{color:var(--muted);font-size:13px}
+@media(max-width:1020px){.cards4{grid-template-columns:repeat(2,1fr)}.cbox{grid-template-columns:1fr}}
+@media(max-width:560px){.cards4{grid-template-columns:1fr}.cbox{padding:30px 20px;border-radius:26px}.cf-grid{grid-template-columns:1fr}}
