@@ -356,3 +356,62 @@ footer .fine b{color:#fff}
   .pimg img,.btn,.fchip,.nav{transition:none}
   .pcard:hover .pimg img{transform:none}
 }
+
+/* ===== movimiento: de "Paquetes" hacia abajo (el hero queda como está) ===== */
+@keyframes fadeLeft{from{opacity:0;transform:translateX(-46px)}to{opacity:1;transform:none}}
+@keyframes fadeRight{from{opacity:0;transform:translateX(46px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:translateY(24px) scale(.93)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(44px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.3) rotate(-24deg)}60%{transform:scale(1.15) rotate(4deg)}to{opacity:1;transform:none}}
+@keyframes floaty{0%,100%{translate:0 0}50%{translate:0 -22px}}
+.anim .reveal.in.fx-left{animation-name:fadeLeft}
+.anim .reveal.in.fx-right{animation-name:fadeRight}
+.anim .reveal.in.fx-zoom{animation-name:zoomIn}
+.anim .pcard.reveal.in{animation-name:cardIn;animation-duration:.85s}
+.anim .trust .it.in svg{animation:pop .7s .25s backwards}
+
+/* capas de fondo con parallax */
+section.s.has-blobs{position:relative;overflow-x:clip}
+section.s.has-blobs > .wrap{position:relative;z-index:1}
+.blob{position:absolute;z-index:0;border-radius:50%;filter:blur(46px);opacity:.5;pointer-events:none;transform:translate3d(0,var(--py,0px),0);animation:floaty 9s ease-in-out infinite}
+.blob.gold{background:radial-gradient(circle,rgba(254,198,82,.75),rgba(254,198,82,0) 70%)}
+.blob.red{background:radial-gradient(circle,rgba(181,19,16,.35),rgba(181,19,16,0) 70%);animation-delay:-3s}
+.blob.teal{background:radial-gradient(circle,rgba(63,116,127,.4),rgba(63,116,127,0) 70%);animation-delay:-6s}
+.arma .mark{transform:translate3d(0,var(--py,0px),0)}
+
+/* vidrio (glassmorphism) sobre esas capas */
+.pcard{background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);border:1px solid rgba(255,255,255,.8);box-shadow:0 10px 30px rgba(112,31,29,.10);transition:transform .55s cubic-bezier(.2,.7,.2,1),box-shadow .3s ease;position:relative}
+.pcard:hover{transform:perspective(900px) translateY(-6px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));box-shadow:0 22px 46px rgba(112,31,29,.2);transition:transform .14s ease-out,box-shadow .3s ease}
+.pcard::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s ease;background:radial-gradient(260px circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.55),rgba(255,255,255,0) 60%)}
+.pcard:hover::after{opacity:1}
+.trust .row,.cbox{background:rgba(255,255,255,.66);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);border:1px solid rgba(255,255,255,.8)}
+.fchip{background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.pcard,.trust .row,.cbox,.fchip{background:#fff}}
+
+/* microinteracciones */
+#progress{position:fixed;left:0;top:0;height:3px;width:100%;z-index:70;pointer-events:none;background:linear-gradient(90deg,var(--gold),var(--red));transform-origin:left;transform:scaleX(var(--p,0))}
+.btn{position:relative;overflow:hidden}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:ripple .65s ease-out forwards;pointer-events:none}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.sh h2 .script,.cbox h2 .script{background:linear-gradient(rgba(254,198,82,.8),rgba(254,198,82,.8)) no-repeat 0 92%/100% 8px}
+.anim .reveal:not(.in) .script{background-size:0 8px}
+.sh h2 .script,.cbox h2 .script{transition:background-size .9s .35s ease}
+.btn-wa:hover{box-shadow:0 10px 24px rgba(31,157,85,.38)}
+.btn-detail:hover{transform:translateY(-2px)}
+.cform input,.cform select,.cform textarea{transition:border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.cform input:focus,.cform select:focus,.cform textarea:focus{outline:0;border-color:var(--red);box-shadow:0 0 0 4px rgba(181,19,16,.14);transform:translateY(-1px)}
+.q15-card{transition:transform .3s ease,box-shadow .3s ease}
+.q15-card:hover{transform:translateY(-6px) rotate(-.6deg)}
+footer div > a:not(.btn):hover{transform:translateX(5px)}
+footer div > a{transition:transform .25s ease,color .2s ease}
+.soc a{transition:transform .25s ease,background .2s ease,color .2s ease}
+.soc a:hover{transform:translateY(-3px) rotate(-8deg)}
+.nos-name{transition:transform .4s ease}
+.nos-name:hover{transform:translateY(-4px)}
+.fchip[aria-pressed="true"]{box-shadow:0 8px 18px rgba(181,19,16,.28)}
+@media(prefers-reduced-motion:reduce){
+  .blob,.anim .trust .it.in svg{animation:none}
+  .pcard,.pcard:hover,.q15-card:hover,.nos-name:hover,.soc a:hover{transform:none}
+  .ripple{display:none}
+  #progress{display:none}
+}
