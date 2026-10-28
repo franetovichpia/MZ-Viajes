@@ -12,6 +12,8 @@ const PHOTO_BUDGET = 850000; // caracteres base64 por paquete (límite de Firest
 const catOf = c => (CONFIG.categories.includes(c) ? c : CONFIG.categories[CONFIG.categories.length - 1]);
 const shown = (cat, ex) => packages.filter(p => catOf(p.category) === cat && p.status !== 'paused' && p.id !== ex);
 const full = (cat, ex) => shown(catOf(cat), ex).length >= MAX;
+const MAXF = CONFIG.maxFeatured;
+const featCount = ex => packages.filter(p => p.featured && p.status !== 'paused' && p.id !== ex).length;
 const catMsg = cat => `"${cat}" ya tiene ${MAX} paquetes visibles. Guardá o eliminá uno de ese tipo para poder mostrar otro.`;
 const lines = t => t.split('\n').map(s => s.trim()).filter(Boolean);
 
@@ -92,7 +94,7 @@ function viewPackages() {
   const sorted = [...packages].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   return h('div', {},
     h('div', { class: 'bar' }, h('h2', {}, `Paquetes (${packages.length})`), h('button', { class: 'btn btn-clay', onclick: () => openForm(null) }, '+ Nuevo paquete')),
-    h('div', { class: 'chips', style: 'margin-bottom:14px' }, CONFIG.categories.map(c => h('span', { class: 'chip' + (shown(c).length >= MAX ? ' soldout' : '') }, `${c}: ${shown(c).length}/${MAX} visibles`))),
+    h('div', { class: 'chips', style: 'margin-bottom:14px' }, h('span', { class: 'chip offer' }, `★ Destacados: ${featCount()}/${MAXF}`), CONFIG.categories.map(c => h('span', { class: 'chip' + (shown(c).length >= MAX ? ' soldout' : '') }, `${c}: ${shown(c).length}/${MAX} visibles`))),
     sorted.length ? h('div', { class: 'list' }, sorted.map(rowFor)) : h('div', { class: 'empty' }, 'Todavía no cargaste paquetes. Tocá "Nuevo paquete".'));
 }
 
@@ -101,17 +103,24 @@ function rowFor(p) {
   return h('div', { class: 'row' },
     safeImg(p.thumb) ? h('img', { src: p.thumb, alt: '' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
     h('div', {}, h('h3', {}, p.title), h('div', { class: 'sub' }, `${p.destination || '—'} · ${p.duration || '—'} · ${fmtPrice(p.price, p.currency)}`),
-      h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), h('span', { class: 'chip offer' }, p.category || 'Sin tipo'))),
+      h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), h('span', { class: 'chip offer' }, p.category || 'Sin tipo'), p.featured ? h('span', { class: 'chip offer' }, '★ Destacado') : null)),
     h('div', { class: 'acts' },
+      p.status !== 'paused' ? h('button', { class: p.featured ? 'sm vid on' : 'sm vid', onclick: () => toggleFeatured(p) }, p.featured ? 'Quitar de destacados' : '★ Destacar') : null,
       h('button', { class: 'sm edit', onclick: () => openForm(p) }, 'Editar'),
       h('button', { class: p.status === 'paused' ? 'sm ok' : 'sm hide', onclick: () => setStatus(p, p.status === 'paused' ? 'active' : 'paused') }, p.status === 'paused' ? 'Reactivar' : 'Guardar sin mostrar'),
       h('button', { class: p.status === 'soldout' ? 'sm ok' : 'sm sold', onclick: () => setStatus(p, p.status === 'soldout' ? 'active' : 'soldout') }, p.status === 'soldout' ? 'Hay cupo' : 'Marcar agotado'),
       h('button', { class: 'sm danger', onclick: () => del(p) }, 'Eliminar')));
 }
 
+function toggleFeatured(p) {
+  if (p.featured) return patch(p.id, { featured: false }, 'Quitado de destacados');
+  if (featCount(p.id) >= MAXF) return toast(`Ya hay ${MAXF} destacados. Quitá uno para poder destacar otro.`, 'err');
+  patch(p.id, { featured: true }, 'Agregado a destacados');
+}
+
 function setStatus(p, status) {
   if (status !== 'paused' && p.status === 'paused' && full(p.category, p.id)) return toast(catMsg(catOf(p.category)), 'err');
-  patch(p.id, { status }, { active: 'Paquete disponible', paused: 'Paquete guardado (ya no se muestra en el sitio)', soldout: 'Marcado como agotado' }[status]);
+  patch(p.id, status === 'paused' ? { status, featured: false } : { status }, { active: 'Paquete disponible', paused: 'Paquete guardado (ya no se muestra en el sitio)', soldout: 'Marcado como agotado' }[status]);
 }
 
 async function del(p) {
@@ -145,6 +154,7 @@ async function openForm(pkg) {
     description: h('textarea', { maxlength: 1200 }, p.description || ''),
     includes: h('textarea', { placeholder: 'Aéreo ida y vuelta\nTraslados\n7 noches de hotel' }, (p.includes || []).join('\n')),
     category: h('select', { required: true }, [h('option', { value: '' }, 'Elegí un tipo…'), ...CONFIG.categories.map(c => h('option', { value: c, selected: p.category === c }, c))]),
+    featured: h('input', { type: 'checkbox', checked: !!p.featured, id: 'featchk' }),
     status: h('select', {}, [['active', 'Disponible'], ['paused', 'Guardado (no se muestra en el sitio)'], ['soldout', 'Agotado']].map(([v, l]) => h('option', { value: v, selected: p.status === v }, l)))
   };
   const fld = (label, el, hint) => h('div', { class: 'fld' }, h('label', {}, label), el, hint ? h('small', {}, hint) : null);
@@ -164,12 +174,14 @@ async function openForm(pkg) {
   const form = h('form', { onsubmit: async e => {
     e.preventDefault();
     const status = f.status.value;
+    const feat = f.featured.checked && status !== 'paused';
+    if (feat && featCount(p.id) >= MAXF) return toast(`Ya hay ${MAXF} destacados. Quitá uno para poder destacar otro.`, 'err');
     if (!f.category.value) return toast('Elegí el tipo de viaje (' + CONFIG.categories.join(', ') + ')', 'err');
     if (status !== 'paused' && full(f.category.value, p.id)) return toast(catMsg(f.category.value), 'err');
     const out = { ...p, title: f.title.value.trim(), destination: f.destination.value.trim(), duration: f.duration.value.trim(),
       price: f.price.value === '' ? null : Number(f.price.value), oldPrice: f.oldPrice.value === '' ? null : Number(f.oldPrice.value),
       currency: f.currency.value, priceNote: f.priceNote.value.trim(), dates: lines(f.dates.value), description: f.description.value.trim(),
-      includes: lines(f.includes.value), category: f.category.value, status, offer: false, offerOrder: 0 };
+      includes: lines(f.includes.value), category: f.category.value, status, featured: feat, offer: false, offerOrder: 0 };
     save.disabled = true; save.textContent = 'Guardando…';
     try {
       if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 480, .7) : '';
@@ -187,6 +199,7 @@ async function openForm(pkg) {
     fld('Fechas de salida', f.dates, 'Una por línea'),
     fld('Descripción', f.description),
     fld('Qué incluye', f.includes, 'Un ítem por línea'),
+    h('label', { style: 'display:flex;gap:10px;align-items:center;font-weight:700' }, f.featured, `★ Mostrar en "Destacados" del inicio (máximo ${MAXF})`),
     h('div', { class: 'fld' }, h('label', {}, `Fotos (hasta 5, la primera es la principal)`), file, photoBox),
     h('div', { style: 'display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap' }, h('button', { class: 'btn btn-line', type: 'button', style: 'color:var(--ink)', onclick: close }, 'Cancelar'), save));
   sheet.replaceChildren(h('button', { class: 'close', type: 'button', onclick: close, 'aria-label': 'Cerrar' }, '×'), form);
@@ -265,7 +278,7 @@ function viewSettings() {
       h('select', { onchange: e => { s.q15Mode = e.target.value; } }, [['ver', 'Abrir el PDF para verlo (recomendado)'], ['descargar', 'Descargar el PDF directamente']].map(([v, l]) => h('option', { value: v, selected: (s.q15Mode || 'ver') === v }, l)))),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
-    h('div', { class: 'fld' }, h('label', {}, 'Foto principal de inicio (opcional)'), heroFile, heroPrev),
+    h('div', { class: 'fld' }, h('label', {}, 'Foto de fondo del inicio (opcional, horizontal)'), heroFile, heroPrev),
     h('div', { class: 'fld' }, h('label', {}, 'Foto de la titular, sección Nosotros (opcional)'), aboutFile, aboutPrev),
     h('button', { class: 'btn btn-clay', type: 'submit', style: 'justify-self:start' }, 'Guardar ajustes'),
     isDemo ? h('button', { class: 'sm', type: 'button', onclick: async () => { if (confirm('¿Volver a los datos de ejemplo?')) { await store.resetDemo(); showPanel(); } } }, 'Reiniciar datos de ejemplo (demo)') : null);

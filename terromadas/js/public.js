@@ -1,18 +1,20 @@
 import { CONFIG } from './config.js';
 import { h, $, waLink, safeImg } from './dom.js';
-import { state, trip, waNumber, fmtDate, visible, card, destinoUrl, openModal, loadCatalog, initChrome, applyCommon, mountContactForm } from './catalog.js';
+import { state, trip, waNumber, fmtDate, visible, featured, FEATURED, card, destinoUrl, openModal, loadCatalog, initChrome, applyCommon, mountContactForm } from './catalog.js';
 
 let sel = '';
 
-/* ---------- "¿A dónde te gustaría viajar?": filtros por destino, 4 tarjetas y "Ver más" ---------- */
+/* ---------- "¿A dónde te gustaría viajar?": Destacados (8) y un filtro por destino (4 + "Ver más") ---------- */
 function renderDestinos() {
-  const cats = CONFIG.categories.filter(c => visible(c).length);
-  if (!cats.includes(sel)) sel = cats[0] || '';
-  $('#vidFilters').replaceChildren(...cats.map(c =>
+  const feat = featured();
+  const tabs = [...(feat.length ? [FEATURED] : []), ...CONFIG.categories.filter(c => visible(c).length)];
+  if (!tabs.includes(sel)) sel = tabs[0] || '';
+  $('#vidFilters').replaceChildren(...tabs.map(c =>
     h('button', { class: 'fchip', type: 'button', 'aria-pressed': sel === c, onclick: () => { sel = c; renderDestinos(); } }, c)));
   const vc = $('#vidCards'); vc.replaceChildren();
   const more = $('#vidMore'); more.replaceChildren();
   if (!sel) { vc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Estamos actualizando nuestros paquetes. Escribinos por WhatsApp y te asesoramos.')); return; }
+  if (sel === FEATURED) { feat.forEach(p => vc.append(card(p, true))); return; }
   const all = visible(sel);
   all.slice(0, 4).forEach(p => vc.append(card(p)));
   more.append(h('a', { class: 'btn btn-red', href: destinoUrl(sel) }, `Ver más de ${sel}${all.length > 4 ? ` (${all.length})` : ''}`));
@@ -46,7 +48,7 @@ function applySettings() {
     }));
   }
   const hi = safeImg(s.heroImage);
-  if (hi) { const im = $('#heroImg'); im.src = hi; im.hidden = false; $('#heroArt').hidden = true; }
+  if (hi) { const im = $('#heroImg'); im.src = hi; im.hidden = false; $('#inicio').classList.add('has-img'); }
 }
 
 async function init() {

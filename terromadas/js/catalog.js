@@ -9,6 +9,7 @@ let lastFocus = null;
 
 export const waNumber = () => state.settings.whatsapp;
 export const catOf = c => (CONFIG.categories.includes(c) ? c : CONFIG.categories[CONFIG.categories.length - 1]);
+export const FEATURED = 'Destacados';
 export const destinoUrl = cat => 'destino.html?tipo=' + encodeURIComponent(cat);
 
 // Paquetes visibles de un destino: primero las promos, después los más nuevos; tope por destino
@@ -16,6 +17,12 @@ export const visible = cat => state.packages
   .filter(p => p.status !== 'paused' && catOf(p.category) === cat)
   .sort((a, b) => (b.oldPrice ? 1 : 0) - (a.oldPrice ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0))
   .slice(0, CONFIG.maxPerCategory);
+
+// Destacados: los que Flavia marca con la estrella (hasta 8), de cualquier destino
+export const featured = () => state.packages
+  .filter(p => p.featured && p.status !== 'paused')
+  .sort((a, b) => (b.oldPrice ? 1 : 0) - (a.oldPrice ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0))
+  .slice(0, CONFIG.maxFeatured);
 
 export async function loadCatalog() {
   try { [state.settings, state.packages] = await Promise.all([store.getSettings(), store.listPackages()]); }
@@ -45,13 +52,14 @@ function priceBlock(p) {
     p.oldPrice ? h('s', {}, fmtPrice(p.oldPrice, p.currency)) : null);
 }
 
-export function card(p) {
+export function card(p, showCat = false) {
   const sold = p.status === 'soldout';
   const img = safeImg(p.thumb);
   return h('article', { class: 'pcard' },
     h('button', { class: 'pimg', onclick: () => openModal(p.id), 'aria-label': `Ver detalle de ${p.title}` },
       img ? h('img', { src: img, alt: '', loading: 'lazy' }) : null,
-      sold ? h('span', { class: 'tag sold' }, 'AGOTADO') : p.oldPrice ? h('span', { class: 'tag' }, 'PROMO') : null),
+      sold ? h('span', { class: 'tag sold' }, 'AGOTADO') : p.oldPrice ? h('span', { class: 'tag' }, 'PROMO') : null,
+      showCat ? h('span', { class: 'tag cat' }, catOf(p.category)) : null),
     h('div', { class: 'pbody' },
       h('div', { class: 'dest' }, p.destination || ''),
       h('h3', {}, p.title),
@@ -59,7 +67,7 @@ export function card(p) {
       h('div', { class: 'meta' }, p.duration ? h('span', {}, '🗓 ' + p.duration) : null, p.dates?.[0] ? h('span', {}, 'Salida: ' + p.dates[0].split(' al ')[0]) : null),
       priceBlock(p)),
     h('div', { class: 'pact' },
-      h('button', { class: 'btn btn-detail', onclick: () => openModal(p.id) }, 'Ver detalle'),
+      h('button', { class: 'btn btn-detail', onclick: () => openModal(p.id) }, 'Ver detalles'),
       sold
         ? h('span', { class: 'btn btn-wa', 'aria-disabled': 'true' }, 'Agotado')
         : h('a', { class: 'btn btn-wa', href: waLink(waNumber(), consultText(p)), target: '_blank', rel: 'noopener noreferrer' }, 'Consultar')));
