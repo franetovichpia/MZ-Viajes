@@ -43,6 +43,17 @@ async function fit(list, budget = PHOTO_BUDGET) {
   return list;
 }
 
+// Mensaje claro según el motivo real del error de Firebase
+function loginError(ex) {
+  const c = ex && ex.code || '';
+  if (/invalid-credential|wrong-password|user-not-found|invalid-email/.test(c)) return 'Correo o contraseña incorrectos.';
+  if (c.includes('too-many-requests')) return 'Demasiados intentos. Esperá unos minutos y probá de nuevo.';
+  if (c.includes('operation-not-allowed')) return 'El ingreso con correo y contraseña no está activado en Firebase (Authentication → Método de acceso).';
+  if (c.includes('network')) return 'No hay conexión con Firebase. Revisá tu internet.';
+  if (c.includes('api-key') || c.includes('app-not-authorized')) return 'La clave de Firebase de config.js no es válida. Revisá apiKey y projectId.';
+  return 'No se pudo ingresar (' + (c || ex.message || 'error') + ').';
+}
+
 /* ---------- login ---------- */
 function showLogin() {
   const email = h('input', { type: 'email', id: 'em', autocomplete: 'username', required: true, placeholder: 'correo@ejemplo.com' });
@@ -51,7 +62,7 @@ function showLogin() {
   const form = h('form', { class: 'lbox', onsubmit: async e => {
     e.preventDefault(); err.hidden = true;
     try { await store.login(email.value.trim(), pw.value); if (isDemo) showPanel(); }
-    catch (ex) { err.textContent = isDemo ? ex.message : 'Correo o contraseña incorrectos.'; err.hidden = false; pw.value = ''; }
+    catch (ex) { err.textContent = isDemo ? ex.message : loginError(ex); err.hidden = false; pw.value = ''; }
   } },
     h('h1', {}, 'Panel de Terromadas'),
     isDemo ? h('div', { class: 'demo-note' }, 'MODO DEMO: los datos se guardan solo en este navegador. Contraseña: ', h('b', {}, CONFIG.demoPassword)) : null,
