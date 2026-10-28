@@ -8,6 +8,9 @@ export const CONFIG = {
   demoPassword: 'terromadas',
   maxPerCategory: 10,
   maxFeatured: 8,
+  // Fotos del inicio: están en el código (carpeta img/hero), no se cambian desde el panel
+  heroSlides: ['img/hero/1.jpg', 'img/hero/2.jpg', 'img/hero/3.jpg', 'img/hero/4.jpg'],
+  heroInterval: 2000, // milisegundos entre foto y foto
   categories: ['Argentina', 'Brasil', 'Caribe', 'Salidas grupales', 'Y más'],
   defaults: {
     whatsapp: '5493571347478',

@@ -47,8 +47,26 @@ function applySettings() {
         h('span', { class: 'q15-cap' }, h('b', {}, d.label || 'Ver información'), h('span', {}, ic.firstChild, dl ? 'Descargar PDF' : 'Ver información')));
     }));
   }
-  const hi = safeImg(s.heroImage);
-  if (hi) { const im = $('#heroImg'); im.src = hi; im.hidden = false; $('#inicio').classList.add('has-img'); }
+}
+
+// Fotos del inicio que pasan solas (están en img/hero; si una no existe, se salta)
+async function initHero() {
+  const box = $('#heroSlides');
+  const ok = (await Promise.all(CONFIG.heroSlides.map(src => new Promise(res => {
+    const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
+  })))).filter(Boolean);
+  if (!ok.length) return;
+  ok.forEach(im => { im.alt = ''; box.append(im); });
+  $('#inicio').classList.add('has-img');
+  let i = 0;
+  ok[0].classList.add('on');
+  if (ok.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  setInterval(() => {
+    if (document.hidden) return;
+    ok[i].classList.remove('on');
+    i = (i + 1) % ok.length;
+    ok[i].classList.add('on');
+  }, CONFIG.heroInterval);
 }
 
 async function init() {
@@ -70,6 +88,7 @@ async function init() {
   applySettings();
   applyCommon();
   renderDestinos();
+  initHero();
   mountContactForm($('#contactForm'));
   const m = location.hash.match(/^#paquete=(.+)$/);
   if (m) openModal(decodeURIComponent(m[1]));

@@ -214,11 +214,6 @@ function viewSettings() {
     el.addEventListener('input', () => { s[k] = el.value; });
     return h('div', { class: 'fld' }, h('label', {}, label), el, hint ? h('small', {}, hint) : null);
   };
-  const heroPrev = h('img', { alt: '', style: 'max-width:240px;border-radius:8px', hidden: !safeImg(s.heroImage), src: safeImg(s.heroImage) || undefined });
-  const heroFile = h('input', { type: 'file', accept: 'image/*', onchange: async e => {
-    const x = e.target.files[0]; if (!x) return;
-    try { const [d] = await fit([await toDataUrl(x, 1600, .6)], 400000); s.heroImage = d; heroPrev.src = d; heroPrev.hidden = false; } catch (ex) { toast(ex.message, 'err'); }
-  } });
   const aboutPrev = h('img', { alt: '', style: 'max-width:200px;border-radius:12px', hidden: !safeImg(s.aboutImage), src: safeImg(s.aboutImage) || undefined });
   const aboutFile = h('input', { type: 'file', accept: 'image/*', onchange: async e => {
     const x = e.target.files[0]; if (!x) return;
@@ -278,7 +273,6 @@ function viewSettings() {
       h('select', { onchange: e => { s.q15Mode = e.target.value; } }, [['ver', 'Abrir el PDF para verlo (recomendado)'], ['descargar', 'Descargar el PDF directamente']].map(([v, l]) => h('option', { value: v, selected: (s.q15Mode || 'ver') === v }, l)))),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
-    h('div', { class: 'fld' }, h('label', {}, 'Foto de fondo del inicio (opcional, horizontal)'), heroFile, heroPrev),
     h('div', { class: 'fld' }, h('label', {}, 'Foto de la titular, sección Nosotros (opcional)'), aboutFile, aboutPrev),
     h('button', { class: 'btn btn-clay', type: 'submit', style: 'justify-self:start' }, 'Guardar ajustes'),
     isDemo ? h('button', { class: 'sm', type: 'button', onclick: async () => { if (confirm('¿Volver a los datos de ejemplo?')) { await store.resetDemo(); showPanel(); } } }, 'Reiniciar datos de ejemplo (demo)') : null);
