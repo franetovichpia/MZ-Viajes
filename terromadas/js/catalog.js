@@ -8,7 +8,7 @@ export const trip = { date: '', pax: '2' };
 let lastFocus = null;
 
 export const waNumber = () => state.settings.whatsapp;
-export const catOf = c => (CONFIG.categories.includes(c) ? c : 'Otros');
+export const catOf = c => (CONFIG.categories.includes(c) ? c : CONFIG.categories[CONFIG.categories.length - 1]);
 export const destinoUrl = cat => 'destino.html?tipo=' + encodeURIComponent(cat);
 
 // Paquetes visibles de un destino: primero las promos, después los más nuevos; tope por destino

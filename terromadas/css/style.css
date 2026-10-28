@@ -293,3 +293,4 @@ a.fchip{text-decoration:none;display:inline-block}
 .cf-note{color:var(--muted);font-size:13px}
 @media(max-width:1020px){.cards4{grid-template-columns:repeat(2,1fr)}.cbox{grid-template-columns:1fr}}
 @media(max-width:560px){.cards4{grid-template-columns:1fr}.cbox{padding:30px 20px;border-radius:26px}.cf-grid{grid-template-columns:1fr}}
+footer .fine b{color:#fff}

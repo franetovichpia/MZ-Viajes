@@ -9,7 +9,7 @@ let tab = 'paquetes';
 
 const MAX = CONFIG.maxPerCategory;
 const PHOTO_BUDGET = 850000; // caracteres base64 por paquete (límite de Firestore: 1 MB por documento)
-const catOf = c => (CONFIG.categories.includes(c) ? c : 'Otros');
+const catOf = c => (CONFIG.categories.includes(c) ? c : CONFIG.categories[CONFIG.categories.length - 1]);
 const shown = (cat, ex) => packages.filter(p => catOf(p.category) === cat && p.status !== 'paused' && p.id !== ex);
 const full = (cat, ex) => shown(catOf(cat), ex).length >= MAX;
 const catMsg = cat => `"${cat}" ya tiene ${MAX} paquetes visibles. Guardá o eliminá uno de ese tipo para poder mostrar otro.`;

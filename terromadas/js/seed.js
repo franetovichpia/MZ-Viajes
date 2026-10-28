@@ -20,7 +20,7 @@ export const SEED_PACKAGES = [
   mk('demo4', { category: 'Argentina', title: 'Salta y Jujuy', destination: 'Salta y Jujuy', duration: '6 noches', dates: ['14/11/2026 al 20/11/2026'], price: 720000, offer: true, offerOrder: 3, oldPrice: 790000,
     description: 'Quebrada de Humahuaca, Salinas Grandes y los colores del Norte.',
     includes: ['Aéreo', '6 noches de hotel', 'Excursión Quebrada de Humahuaca', 'Salinas Grandes', 'Traslados'], thumb: scene('#f0b27a', '#fdf0d5', '#b4532a') }),
-  mk('demo5', { category: 'Otros', title: 'Escapada a Colonia', destination: 'Colonia del Sacramento, Uruguay', duration: '3 noches', dates: ['27/11/2026 al 30/11/2026'], price: 310000,
+  mk('demo5', { category: 'Y más', title: 'Escapada a Colonia', destination: 'Colonia del Sacramento, Uruguay', duration: '3 noches', dates: ['27/11/2026 al 30/11/2026'], price: 310000,
     description: 'Un fin de semana largo en el casco histórico, con barco incluido.',
     includes: ['Buquebús ida y vuelta', '3 noches con desayuno', 'City tour'], thumb: scene('#f6c58e', '#e6f0f5', '#6c7f8f') }),
   mk('demo8', { category: 'Argentina', title: 'Ushuaia, fin del mundo', destination: 'Ushuaia, Tierra del Fuego', duration: '5 noches', dates: ['02/12/2026 al 07/12/2026'], price: 1100000,

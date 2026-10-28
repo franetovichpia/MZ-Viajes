@@ -7,7 +7,7 @@ export const CONFIG = {
   },
   demoPassword: 'terromadas',
   maxPerCategory: 10,
-  categories: ['Argentina', 'Caribe', 'Brasil', 'Salidas grupales', 'Otros'],
+  categories: ['Argentina', 'Brasil', 'Caribe', 'Salidas grupales', 'Y más'],
   defaults: {
     whatsapp: '5493571347478',
     armaUrl: 'https://www.terromadasviajes.com',
