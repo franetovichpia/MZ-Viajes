@@ -10,7 +10,8 @@ let lastFocus = null;
 export const waNumber = () => state.settings.whatsapp;
 export const catOf = c => (CONFIG.categories.includes(c) ? c : '');
 export const FEATURED = 'Destacados';
-export const destinoUrl = cat => 'destino.html?tipo=' + encodeURIComponent(cat);
+// Sin ".html": con URLs limpias el servidor redirige destino.html y perdería el ?tipo=
+export const destinoUrl = cat => 'destino?tipo=' + encodeURIComponent(cat);
 
 // Paquetes visibles de un destino: primero las promos, después los más nuevos; tope por destino
 export const visible = cat => state.packages
