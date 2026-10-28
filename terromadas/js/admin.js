@@ -100,23 +100,37 @@ async function patch(id, data, msg) {
 }
 
 
-/* ---------- vista paquetes: una sección por destino ---------- */
+/* ---------- vista paquetes: pestañas por destino, se ve una categoría por vez ---------- */
+let ptab = CONFIG.categories[0];
+const FEAT_TAB = '__destacados', ORPHAN_TAB = '__sin_tipo';
+
 function viewPackages() {
   const newest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
   const byCat = c => packages.filter(p => catOf(p.category) === c).sort(newest);
   const orphans = packages.filter(p => !catOf(p.category)).sort(newest);
-  const section = (title, list, cat) => h('section', { class: 'sec', id: 'sec-' + (cat || 'sin-tipo') },
-    h('div', { class: 'sec-h' },
-      h('h3', {}, title, h('span', { class: 'count' }, cat ? `  ${shown(cat).length}/${MAX} visibles · ${list.length} en total` : `  ${list.length}`)),
-      cat ? h('button', { class: 'sm edit', onclick: () => openForm(null, cat) }, `+ Nuevo en ${cat}`) : null),
-    list.length ? h('div', { class: 'list' }, list.map(rowFor)) : h('div', { class: 'empty' }, `Todavía no cargaste paquetes de ${cat}.`));
+  const feats = packages.filter(p => p.featured && p.status !== 'paused').sort(newest);
+  const tabs = [
+    ...CONFIG.categories.map(c => ({ key: c, label: c, n: byCat(c).length, warn: shown(c).length >= MAX })),
+    { key: FEAT_TAB, label: '★ Destacados', n: feats.length, warn: feats.length >= MAXF },
+    ...(orphans.length ? [{ key: ORPHAN_TAB, label: 'Sin clasificar', n: orphans.length, warn: true }] : [])
+  ];
+  if (!tabs.some(x => x.key === ptab)) ptab = CONFIG.categories[0];
+
+  const isCat = CONFIG.categories.includes(ptab);
+  const list = isCat ? byCat(ptab) : ptab === FEAT_TAB ? feats : orphans;
+  const title = isCat ? ptab : ptab === FEAT_TAB ? 'Destacados del inicio' : 'Sin clasificar';
+  const info = isCat ? `${shown(ptab).length}/${MAX} visibles en el sitio · ${list.length} en total`
+    : ptab === FEAT_TAB ? `${feats.length}/${MAXF} destacados · aparecen primero en el inicio`
+    : 'Editá cada uno y elegí su tipo de viaje';
+  const emptyMsg = isCat ? `Todavía no cargaste paquetes de ${ptab}.` : ptab === FEAT_TAB ? 'Todavía no destacaste ningún paquete. Usá el botón "★ Destacar" en cualquier paquete.' : '';
+
   return h('div', {},
-    h('div', { class: 'bar' }, h('h2', {}, `Paquetes (${packages.length})`), h('button', { class: 'btn btn-clay', onclick: () => openForm(null) }, '+ Nuevo paquete')),
-    h('div', { class: 'chips', style: 'margin-bottom:6px' },
-      h('span', { class: 'chip offer' }, `★ Destacados: ${featCount()}/${MAXF}`),
-      CONFIG.categories.map(c => h('a', { class: 'chip jump' + (shown(c).length >= MAX ? ' soldout' : ''), href: '#sec-' + c }, `${c}: ${shown(c).length}/${MAX}`))),
-    CONFIG.categories.map(c => section(c, byCat(c), c)),
-    orphans.length ? section('Sin clasificar: editá cada uno y elegí su tipo de viaje', orphans, '') : null);
+    h('div', { class: 'bar' }, h('h2', {}, `Paquetes (${packages.length})`), h('button', { class: 'btn btn-clay', onclick: () => openForm(null, isCat ? ptab : '') }, '+ Nuevo paquete')),
+    h('div', { class: 'ptabs', role: 'tablist' }, tabs.map(x => h('button', { class: 'ptab' + (x.warn ? ' full' : ''), role: 'tab', type: 'button', 'aria-selected': ptab === x.key, onclick: () => { ptab = x.key; renderPanel(); } }, `${x.label} (${x.n})`))),
+    h('div', { class: 'sec-h' },
+      h('h3', {}, title, h('span', { class: 'count' }, '  ' + info)),
+      isCat ? h('button', { class: 'sm edit', onclick: () => openForm(null, ptab) }, `+ Nuevo en ${ptab}`) : null),
+    list.length ? h('div', { class: 'list' }, list.map(rowFor)) : h('div', { class: 'empty' }, emptyMsg));
 }
 
 function rowFor(p) {
@@ -208,7 +222,7 @@ async function openForm(pkg, defCat) {
       if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 480, .7) : '';
       await store.savePackage(out, changed ? photos : undefined);
       const i = packages.findIndex(x => x.id === out.id); if (i >= 0) packages[i] = out; else packages.push(out);
-      close(); renderPanel(); toast('Paquete guardado ✔');
+      ptab = out.category || ptab; close(); renderPanel(); toast('Paquete guardado ✔');
     } catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); save.disabled = false; save.textContent = 'Guardar paquete'; }
   } },
     h('h2', { style: 'font-size:26px' }, isNew ? 'Nuevo paquete' : 'Editar paquete'),

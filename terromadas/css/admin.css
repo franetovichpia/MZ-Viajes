@@ -87,3 +87,10 @@
 .sec-h h3{font-size:22px;color:#701f1d}
 .sec-h .count{font-size:13px;font-weight:700;color:var(--muted);margin-left:8px}
 a.chip.jump{text-decoration:none;cursor:pointer}
+
+/* pestañas por destino en Paquetes */
+.ptabs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 20px}
+.ptab{border:1.5px solid #e3d6c4;background:#fff;color:#701f1d;font:inherit;font-weight:700;font-size:14px;padding:9px 16px;border-radius:999px;cursor:pointer}
+.ptab:hover{background:#fff6e6}
+.ptab[aria-selected="true"]{background:#b51310;border-color:#b51310;color:#fff}
+.ptab.full:not([aria-selected="true"]){border-color:#e0a09a}
