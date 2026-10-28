@@ -2,10 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ⚠️ Cambiá este correo por el del dueño de Terromadas (el mismo con el que crea su usuario)
+    // ⚠️ Cambiá estos correos por los de quienes administran el sitio (dueña y soporte).
+    // Tienen que ser los mismos con los que se crean los usuarios en Authentication.
     function isOwner() {
       return request.auth != null
-        && request.auth.token.email == 'DUENO@CORREO.COM';
+        && request.auth.token.email in ['DUENA@CORREO.COM', 'SOPORTE@CORREO.COM'];
     }
 
     // Todo el mundo puede LEER el catálogo; solo el dueño puede ESCRIBIR
@@ -14,10 +15,6 @@ service cloud.firestore {
       allow write: if isOwner();
     }
     match /photos/{id} {
-      allow read: if true;
-      allow write: if isOwner();
-    }
-    match /external/{id} {
       allow read: if true;
       allow write: if isOwner();
     }
