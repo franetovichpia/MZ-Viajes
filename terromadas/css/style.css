@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Mulish:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Mulish:wght@400;500;700&family=Poppins:wght@200;300;500;600;700&display=swap');
 :root{--red:#b51310;--wine:#701f1d;--bright:#fe2d28;--gold:#fec652;--teal:#3f747f;--sky:#36bcd8;--peach:#fee2a8;--cream:#fff8ee;--ink:#2a1a19;--muted:#7a6764;--line:#f0e0cf;--r:20px;
 --moss:var(--wine);--clay:var(--red);--sand:var(--cream);--sand2:#f8ead7}
 *{box-sizing:border-box}
@@ -318,3 +318,10 @@ footer .fine b{color:#fff}
 .hero-slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.07);transition:opacity .9s ease,transform 5s ease-out}
 .hero-slides img.on{opacity:1;transform:scale(1)}
 @media(prefers-reduced-motion:reduce){.hero-slides img{transition:none;transform:none}}
+
+/* hero: título mezclando un trazo fino y uno grueso; la foto se ve y el texto mantiene el foco */
+.hero h1{font-weight:200;letter-spacing:-.02em}
+.hero h1 span{display:block;font-weight:200;font-size:clamp(40px,6.2vw,78px)}
+.hero h1 b{font-weight:700;font-size:clamp(46px,7vw,88px);letter-spacing:-.025em;margin-top:2px}
+.hero.has-img::after{background:radial-gradient(ellipse 70% 62% at 50% 52%,rgba(34,14,13,.52) 0%,rgba(34,14,13,.2) 100%),linear-gradient(180deg,rgba(34,14,13,.3) 0%,rgba(34,14,13,0) 38%,rgba(34,14,13,.5) 100%)}
+.hero h1,.hero .script,.hero p.lead{text-shadow:0 2px 16px rgba(20,8,8,.45)}
