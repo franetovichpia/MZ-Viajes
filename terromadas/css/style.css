@@ -589,3 +589,6 @@ html:not(.no-intro) .search{animation-delay:2.75s}
 /* el botón de WhatsApp se detiene arriba del pie de página */
 .wa-fab{bottom:calc(max(18px,env(safe-area-inset-bottom)) + var(--fab-lift,0px));transition:transform .25s cubic-bezier(.2,.9,.3,1.4),box-shadow .25s ease,opacity .25s ease}
 .wa-fab.hide{opacity:0;transform:scale(.6);pointer-events:none}
+
+/* las palabras en letra manuscrita (más grande y con colas) no se cortan al aparecer */
+.split .w.script-w{padding:.2em .3em .6em .05em;margin:-.2em -.3em -.6em -.05em}

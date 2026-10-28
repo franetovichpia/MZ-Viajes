@@ -55,7 +55,7 @@ function splitTitles() {
     let i = 0;
     const wrap = node => {
       const w = document.createElement('span'), s = document.createElement('span');
-      w.className = 'w'; s.style.setProperty('--i', i++); s.append(node); w.append(s);
+      w.className = 'w' + (node.nodeType === 1 && node.classList.contains('script') ? ' script-w' : ''); s.style.setProperty('--i', i++); s.append(node); w.append(s);
       return w;
     };
     const out = [];
