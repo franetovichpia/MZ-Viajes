@@ -542,3 +542,29 @@ footer div > a:not(.btn):hover{transform:translateX(5px)}
   .btn,.btn:hover{transform:none}
   .ripple{display:none}
 }
+
+/* ===== pantalla de entrada: vidrio desenfocado, 2 segundos y se levanta mostrando el sitio ===== */
+@keyframes introOut{from{transform:none;border-radius:0}to{transform:translateY(-114%);border-radius:0 0 50% 50% / 0 0 16vh 16vh;visibility:hidden}}
+@keyframes introFade{to{opacity:0;visibility:hidden}}
+@keyframes introLogo{from{opacity:0;transform:translateY(18px) scale(.88)}to{opacity:1;transform:none}}
+@keyframes introText{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes introBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#intro{position:fixed;inset:-80px;padding:80px;box-sizing:border-box;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  background:linear-gradient(135deg,rgba(181,19,16,.74),rgba(112,31,29,.86));
+  -webkit-backdrop-filter:blur(34px) saturate(1.35);backdrop-filter:blur(34px) saturate(1.35);
+  animation:introOut .95s 2s cubic-bezier(.77,0,.18,1) forwards}
+.intro-logo{width:min(300px,62vw);height:auto;animation:introLogo .9s .15s cubic-bezier(.2,.8,.2,1) both;filter:drop-shadow(0 10px 30px rgba(0,0,0,.25))}
+.intro-script{font-family:'Caveat',cursive;font-weight:700;font-size:clamp(24px,4vw,34px);color:var(--gold);animation:introText .8s .7s both}
+.intro-bar{display:block;width:min(220px,50vw);height:3px;border-radius:3px;background:linear-gradient(90deg,var(--gold),#fff);transform-origin:left;animation:introBar 1.7s .25s cubic-bezier(.4,0,.2,1) both;margin-top:6px}
+html.no-intro #intro{display:none}
+/* la portada empieza a aparecer cuando se levanta la pantalla */
+html:not(.no-intro) .hero-in h1{animation-delay:2.1s}
+html:not(.no-intro) .hero-in .script{animation-delay:2.3s}
+html:not(.no-intro) .hero-in .lead{animation-delay:2.45s}
+html:not(.no-intro) .hero-in .actions{animation-delay:2.6s}
+html:not(.no-intro) .search{animation-delay:2.75s}
+@media(prefers-reduced-motion:reduce){
+  #intro{animation:introFade .7s 1.7s forwards}
+  .intro-logo,.intro-script,.intro-bar{animation-duration:.01s}
+  html:not(.no-intro) .hero-in > *,html:not(.no-intro) .search{animation:none}
+}
