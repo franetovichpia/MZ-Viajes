@@ -53,12 +53,14 @@ function applySettings() {
 
 // Fotos del inicio que pasan solas (están en img/hero; si una no existe, se salta).
 // La primera se muestra apenas carga; las demás se suman en orden y empiezan a rotar.
+let heroStarted = false;
 async function initHero() {
+  if (heroStarted) return; heroStarted = true;
   const box = $('#heroSlides');
   const slides = [];
   let cur = 0;
   const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
-  const first = async base => { for (const ext of ['.jpg', '.jpeg', '.webp', '.png']) { const im = await load(base + ext); if (im) return im; } return null; };
+  const first = async base => { for (const ext of (/\.\w{3,4}$/.test(base) ? [''] : ['.jpg', '.jpeg', '.webp', '.png'])) { const im = await load(base + ext); if (im) return im; } return null; };
   const next = () => {
     if (document.hidden || slides.length < 2) return;
     slides[cur].classList.remove('on');
@@ -90,6 +92,7 @@ async function init() {
     window.open(waLink(waNumber(), t), '_blank', 'noopener');
   });
 
+  initHero(); // las fotos de la portada empiezan a bajar ya, en paralelo con los datos
   await loadCatalog();
   applySettings();
   applyCommon();

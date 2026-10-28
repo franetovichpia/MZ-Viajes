@@ -219,7 +219,7 @@ async function openForm(pkg, defCat) {
       includes: lines(f.includes.value), category: f.category.value, status, featured: feat, offer: false, offerOrder: 0 };
     save.disabled = true; save.textContent = 'Guardando…';
     try {
-      if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 480, .7) : '';
+      if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 420, .62) : '';
       await store.savePackage(out, changed ? photos : undefined);
       const i = packages.findIndex(x => x.id === out.id); if (i >= 0) packages[i] = out; else packages.push(out);
       ptab = out.category || ptab; close(); renderPanel(); toast('Paquete guardado ✔');

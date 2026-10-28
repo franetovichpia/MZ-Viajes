@@ -10,7 +10,7 @@ export const CONFIG = {
   maxFeatured: 8,
   // Fotos del inicio: están en el código (carpeta img/hero), no se cambian desde el panel
   // Se escriben sin extensión: sirve .jpg, .jpeg o .webp. Para sumar más fotos, agregalas acá (4, 5, 6...)
-  heroSlides: ['img/hero/lago', 'img/hero/mar', 'img/hero/rio', 'img/hero/catedral'],
+  heroSlides: ['img/hero/lago.jpg', 'img/hero/mar.jpg', 'img/hero/rio.jpg', 'img/hero/catedral.jpg'],
   heroInterval: 2500, // milisegundos entre foto y foto
   categories: ['Argentina', 'Brasil', 'Caribe', 'Salidas grupales'],
   defaults: {

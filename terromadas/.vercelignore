@@ -1,0 +1,6 @@
+worker
+scripts
+data
+README.md
+firebase.json
+firestore.rules
