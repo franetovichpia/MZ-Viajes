@@ -12,7 +12,7 @@ export const CONFIG = {
   // Se escriben sin extensión: sirve .jpg, .jpeg o .webp. Para sumar más fotos, agregalas acá (4, 5, 6...)
   heroSlides: ['img/hero/lago', 'img/hero/mar', 'img/hero/rio', 'img/hero/catedral'],
   heroInterval: 2500, // milisegundos entre foto y foto
-  categories: ['Argentina', 'Brasil', 'Caribe', 'Salidas grupales', 'Y más'],
+  categories: ['Argentina', 'Brasil', 'Caribe', 'Salidas grupales'],
   defaults: {
     whatsapp: '5493571347478',
     armaUrl: 'https://www.terromadasviajes.com',

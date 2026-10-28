@@ -9,9 +9,9 @@ let tab = 'paquetes';
 
 const MAX = CONFIG.maxPerCategory;
 const PHOTO_BUDGET = 850000; // caracteres base64 por paquete (límite de Firestore: 1 MB por documento)
-const catOf = c => (CONFIG.categories.includes(c) ? c : CONFIG.categories[CONFIG.categories.length - 1]);
+const catOf = c => (CONFIG.categories.includes(c) ? c : '');
 const shown = (cat, ex) => packages.filter(p => catOf(p.category) === cat && p.status !== 'paused' && p.id !== ex);
-const full = (cat, ex) => shown(catOf(cat), ex).length >= MAX;
+const full = (cat, ex) => !!catOf(cat) && shown(catOf(cat), ex).length >= MAX;
 const MAXF = CONFIG.maxFeatured;
 const featCount = ex => packages.filter(p => p.featured && p.status !== 'paused' && p.id !== ex).length;
 const catMsg = cat => `"${cat}" ya tiene ${MAX} paquetes visibles. Guardá o eliminá uno de ese tipo para poder mostrar otro.`;
@@ -100,13 +100,23 @@ async function patch(id, data, msg) {
 }
 
 
-/* ---------- vista paquetes ---------- */
+/* ---------- vista paquetes: una sección por destino ---------- */
 function viewPackages() {
-  const sorted = [...packages].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  const newest = (a, b) => (b.createdAt || 0) - (a.createdAt || 0);
+  const byCat = c => packages.filter(p => catOf(p.category) === c).sort(newest);
+  const orphans = packages.filter(p => !catOf(p.category)).sort(newest);
+  const section = (title, list, cat) => h('section', { class: 'sec', id: 'sec-' + (cat || 'sin-tipo') },
+    h('div', { class: 'sec-h' },
+      h('h3', {}, title, h('span', { class: 'count' }, cat ? `  ${shown(cat).length}/${MAX} visibles · ${list.length} en total` : `  ${list.length}`)),
+      cat ? h('button', { class: 'sm edit', onclick: () => openForm(null, cat) }, `+ Nuevo en ${cat}`) : null),
+    list.length ? h('div', { class: 'list' }, list.map(rowFor)) : h('div', { class: 'empty' }, `Todavía no cargaste paquetes de ${cat}.`));
   return h('div', {},
     h('div', { class: 'bar' }, h('h2', {}, `Paquetes (${packages.length})`), h('button', { class: 'btn btn-clay', onclick: () => openForm(null) }, '+ Nuevo paquete')),
-    h('div', { class: 'chips', style: 'margin-bottom:14px' }, h('span', { class: 'chip offer' }, `★ Destacados: ${featCount()}/${MAXF}`), CONFIG.categories.map(c => h('span', { class: 'chip' + (shown(c).length >= MAX ? ' soldout' : '') }, `${c}: ${shown(c).length}/${MAX} visibles`))),
-    sorted.length ? h('div', { class: 'list' }, sorted.map(rowFor)) : h('div', { class: 'empty' }, 'Todavía no cargaste paquetes. Tocá "Nuevo paquete".'));
+    h('div', { class: 'chips', style: 'margin-bottom:6px' },
+      h('span', { class: 'chip offer' }, `★ Destacados: ${featCount()}/${MAXF}`),
+      CONFIG.categories.map(c => h('a', { class: 'chip jump' + (shown(c).length >= MAX ? ' soldout' : ''), href: '#sec-' + c }, `${c}: ${shown(c).length}/${MAX}`))),
+    CONFIG.categories.map(c => section(c, byCat(c), c)),
+    orphans.length ? section('Sin clasificar: editá cada uno y elegí su tipo de viaje', orphans, '') : null);
 }
 
 function rowFor(p) {
@@ -141,9 +151,9 @@ async function del(p) {
 }
 
 /* ---------- formulario de paquete ---------- */
-async function openForm(pkg) {
+async function openForm(pkg, defCat) {
   const isNew = !pkg;
-  const p = pkg ? { ...pkg } : { id: uid(), status: 'active', offer: false, offerOrder: 0, currency: 'ARS', priceNote: 'por persona', createdAt: Date.now() };
+  const p = pkg ? { ...pkg } : { id: uid(), category: defCat || '', status: 'active', offer: false, offerOrder: 0, currency: 'ARS', priceNote: 'por persona', createdAt: Date.now() };
   let photos = []; let changed = false;
   const modal = h('div', { class: 'modal open', role: 'dialog', 'aria-modal': 'true', 'aria-label': isNew ? 'Nuevo paquete' : 'Editar paquete' });
   const sheet = h('div', { class: 'sheet formsheet' });

@@ -80,3 +80,10 @@
 .doc-photo,.doc-photo-ctl{min-width:0}
 .doc-photo-ctl input[type=url],.doc-photo-ctl input[type=file]{width:100%;box-sizing:border-box}
 .doc-photo-ctl .sm{width:100%}
+
+/* paquetes agrupados por destino */
+.sec{margin-top:30px;scroll-margin-top:90px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e3d6c4}
+.sec-h h3{font-size:22px;color:#701f1d}
+.sec-h .count{font-size:13px;font-weight:700;color:var(--muted);margin-left:8px}
+a.chip.jump{text-decoration:none;cursor:pointer}

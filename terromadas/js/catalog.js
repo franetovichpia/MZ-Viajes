@@ -8,7 +8,7 @@ export const trip = { date: '', pax: '2' };
 let lastFocus = null;
 
 export const waNumber = () => state.settings.whatsapp;
-export const catOf = c => (CONFIG.categories.includes(c) ? c : CONFIG.categories[CONFIG.categories.length - 1]);
+export const catOf = c => (CONFIG.categories.includes(c) ? c : '');
 export const FEATURED = 'Destacados';
 export const destinoUrl = cat => 'destino.html?tipo=' + encodeURIComponent(cat);
 
