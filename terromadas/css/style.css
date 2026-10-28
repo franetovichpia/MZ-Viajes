@@ -585,3 +585,7 @@ html:not(.no-intro) .search{animation-delay:2.75s}
 .wa-fab:active{transform:scale(.96)}
 @media(max-width:560px){.wa-fab{width:56px;height:56px}.wa-fab svg{width:30px;height:30px}.wa-fab::before{display:none}}
 @media(prefers-reduced-motion:reduce){.wa-fab{animation:none}.wa-fab::after{animation:none}.wa-fab:hover{transform:none}}
+
+/* el botón de WhatsApp se detiene arriba del pie de página */
+.wa-fab{bottom:calc(max(18px,env(safe-area-inset-bottom)) + var(--fab-lift,0px));transition:transform .25s cubic-bezier(.2,.9,.3,1.4),box-shadow .25s ease,opacity .25s ease}
+.wa-fab.hide{opacity:0;transform:scale(.6);pointer-events:none}

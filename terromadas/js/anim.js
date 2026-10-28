@@ -228,9 +228,26 @@ function ripples() {
   });
 }
 
+// El botón flotante de WhatsApp no tapa el pie de página: se detiene arriba de él (o se esconde si el pie es muy alto)
+function fabAboveFooter() {
+  const fab = document.getElementById('fab'), foot = document.querySelector('footer');
+  if (!fab || !foot) return;
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const over = innerHeight - foot.getBoundingClientRect().top;
+    const tall = foot.offsetHeight > innerHeight * 0.6;
+    fab.classList.toggle('hide', tall && over > 40);
+    fab.style.setProperty('--fab-lift', tall ? '0px' : Math.max(0, over) + 'px');
+  };
+  const ask = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+  addEventListener('scroll', ask, { passive: true }); addEventListener('resize', ask); update();
+}
+
 export function initAnim() {
   const html = document.documentElement;
   html.classList.add('anim');
+  fabAboveFooter();
   if (reduce) html.classList.add('soft');
   if (!reduce) splitTitles();
   STATIC.forEach(([sel, fx]) => $$(sel).forEach((e, i) => { e.classList.add('reveal', fx); e.style.setProperty('--d', Math.min(i, 5) * 90 + 'ms'); }));
