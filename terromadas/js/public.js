@@ -49,24 +49,27 @@ function applySettings() {
   }
 }
 
-// Fotos del inicio que pasan solas (están en img/hero; si una no existe, se salta)
+// Fotos del inicio que pasan solas (están en img/hero; si una no existe, se salta).
+// La primera se muestra apenas carga; las demás se suman en orden y empiezan a rotar.
 async function initHero() {
   const box = $('#heroSlides');
+  const slides = [];
+  let cur = 0;
   const load = src => new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
   const first = async base => { for (const ext of ['.jpg', '.jpeg', '.webp', '.png']) { const im = await load(base + ext); if (im) return im; } return null; };
-  const ok = (await Promise.all(CONFIG.heroSlides.map(first))).filter(Boolean);
-  if (!ok.length) return;
-  ok.forEach(im => { im.alt = ''; box.append(im); });
-  $('#inicio').classList.add('has-img');
-  let i = 0;
-  ok[0].classList.add('on');
-  if (ok.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  setInterval(() => {
-    if (document.hidden) return;
-    ok[i].classList.remove('on');
-    i = (i + 1) % ok.length;
-    ok[i].classList.add('on');
-  }, CONFIG.heroInterval);
+  const next = () => {
+    if (document.hidden || slides.length < 2) return;
+    slides[cur].classList.remove('on');
+    cur = (cur + 1) % slides.length;
+    slides[cur].classList.add('on');
+  };
+  for (const base of CONFIG.heroSlides) {
+    const im = await first(base);
+    if (!im) continue;
+    im.alt = ''; box.append(im); slides.push(im);
+    if (slides.length === 1) { im.classList.add('on'); $('#inicio').classList.add('has-img'); }
+    if (slides.length === 2) setInterval(next, CONFIG.heroInterval);
+  }
 }
 
 async function init() {
