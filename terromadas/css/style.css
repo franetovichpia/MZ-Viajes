@@ -592,3 +592,23 @@ html:not(.no-intro) .search{animation-delay:2.75s}
 
 /* las palabras en letra manuscrita (más grande y con colas) no se cortan al aparecer */
 .split .w.script-w{padding:.2em .3em .6em .05em;margin:-.2em -.3em -.6em -.05em}
+
+/* ===== pantalla de entrada v2: el reloj arranca cuando todo está listo (en celulares lentos no se pierde) ===== */
+@keyframes introSafe{to{opacity:0;visibility:hidden}}
+#intro{animation:introSafe .3s 9s forwards}
+html.intro-run #intro{animation:introOut .95s 2.4s cubic-bezier(.77,0,.18,1) forwards}
+.intro-logo,.intro-script,.intro-bar{animation:none;opacity:0}
+html.intro-run .intro-logo{animation:introLogo .9s .15s cubic-bezier(.2,.8,.2,1) both}
+html.intro-run .intro-script{animation:introText .8s .7s both}
+html.intro-run .intro-bar{animation:introBar 2.1s .25s cubic-bezier(.4,0,.2,1) both}
+html:not(.no-intro):not(.intro-run) .hero-in > *,html:not(.no-intro):not(.intro-run) .search{animation:none;opacity:0}
+html:not(.no-intro) .hero-in h1{animation-delay:2.4s}
+html:not(.no-intro) .hero-in .script{animation-delay:2.6s}
+html:not(.no-intro) .hero-in .lead{animation-delay:2.75s}
+html:not(.no-intro) .hero-in .actions{animation-delay:2.9s}
+html:not(.no-intro) .search{animation-delay:3.05s}
+@media(prefers-reduced-motion:reduce){
+  html.intro-run #intro{animation:introFade .7s 2s forwards}
+  html.intro-run .intro-logo,html.intro-run .intro-script,html.intro-run .intro-bar{animation-duration:.01s}
+  html:not(.no-intro) .hero-in > *,html:not(.no-intro) .search{animation:none;opacity:1}
+}
