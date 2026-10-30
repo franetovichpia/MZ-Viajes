@@ -612,3 +612,35 @@ html:not(.no-intro) .search{animation-delay:3.05s}
   html.intro-run .intro-logo,html.intro-run .intro-script,html.intro-run .intro-bar{animation-duration:.01s}
   html:not(.no-intro) .hero-in > *,html:not(.no-intro) .search{animation:none;opacity:1}
 }
+
+/* ===== ventanas modales de confirmación / aviso + sello + data fiscal ===== */
+.dlg{position:fixed;inset:0;z-index:500;background:rgba(42,26,25,.62);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;animation:dlgBg .2s ease}
+.dlg.out{opacity:0;transition:opacity .16s ease}
+.dbox{width:min(400px,100%);background:#fff;border-radius:24px;padding:28px 26px 22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:dlgIn .32s cubic-bezier(.2,.8,.2,1)}
+.dbox h3{font-size:21px;margin:14px 0 8px;color:var(--ink)}
+.dbox p{color:var(--muted);font-size:15px;line-height:1.5;white-space:pre-line}
+.dico{width:62px;height:62px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:#fff1ee;color:var(--red)}
+.dico svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.dico.ok{background:#e8f7ec;color:#1f8a4a}
+.dico.ok path{stroke-dasharray:30;stroke-dashoffset:30;animation:dlgTick .5s .15s ease forwards}
+.dico.ask{background:#fff4dc;color:#b87a00}
+.dact{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.dbtn{border:0;border-radius:999px;padding:12px 24px;min-height:46px;font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:transform .15s,background .15s;flex:1 1 130px}
+.dbtn:active{transform:scale(.97)}
+.dbtn.ghost{background:#f4ebe0;color:var(--ink)}.dbtn.ghost:hover{background:#ecdfcf}
+.dbtn.primary{background:var(--red);color:#fff}.dbtn.primary:hover{background:var(--wine)}
+.dbtn.primary.danger{background:#b3261e}.dbtn.primary.danger:hover{background:#8f1c16}
+@keyframes dlgBg{from{opacity:0}to{opacity:1}}
+@keyframes dlgIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes dlgTick{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.dlg,.dbox,.dico.ok path{animation:none}.dico.ok path{stroke-dashoffset:0}}
+.logo{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.foot-cred{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;border-top:1px solid #ffffff22;margin-top:14px;padding-top:20px}
+.foot-cred .sello{height:92px;width:auto;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+.foot-cred .fiscal{display:flex;flex-direction:column;gap:6px;align-items:flex-start;font-size:13px;color:#e9cfcb;line-height:1.45}
+.foot-cred .fiscal span{display:block}
+.foot-cred a.dfiscal{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid #ffffff55;border-radius:10px;color:#fff;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;transition:background .2s,transform .2s}
+.foot-cred a.dfiscal:hover{background:#ffffff1f;transform:translateY(-2px)}
+.foot-cred a.dfiscal svg{width:16px;height:16px}
+.foot-cred + .fine{margin-top:18px;border-top:0;padding-top:0}
+@media(max-width:560px){.foot-cred{flex-direction:column;gap:14px;text-align:center}.foot-cred .fiscal{align-items:center}}

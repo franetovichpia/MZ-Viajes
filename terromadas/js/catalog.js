@@ -2,6 +2,7 @@
 import { CONFIG } from './config.js';
 import { store, isDemo } from './store.js';
 import { h, $, fmtPrice, waLink, safeImg, toast } from './dom.js';
+import { confirmDlg } from './dialog.js';
 
 export const state = { settings: CONFIG.defaults, packages: [] };
 export const trip = { date: '', pax: '2' };
@@ -162,8 +163,31 @@ export function initChrome() {
   const burger = $('#burger'), menu = $('#menu');
   burger.addEventListener('click', () => { const o = menu.classList.toggle('open'); burger.setAttribute('aria-expanded', o); });
   menu.addEventListener('click', e => { if (e.target.closest('a')) { menu.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); } });
+  adminDoubleTap();
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').classList.contains('open')) closeModal(); });
+}
+
+// Doble toque (o doble clic) sobre el logo del menú: pregunta si se quiere entrar al panel de administración.
+// Un solo toque se comporta como siempre (ir al inicio), con una pequeña espera para distinguirlos.
+function adminDoubleTap() {
+  const logo = $('.nav .logo'); if (!logo) return;
+  let timer = null;
+  logo.addEventListener('click', e => {
+    e.preventDefault();
+    if (timer) {
+      clearTimeout(timer); timer = null;
+      confirmDlg({ kind: 'ask', title: 'Panel de administración', message: 'Es la zona privada de Terromadas. ¿Querés ingresar?', yes: 'Ingresar', no: 'Cancelar' })
+        .then(ok => { if (ok) location.href = 'admin'; });
+      return;
+    }
+    timer = setTimeout(() => {
+      timer = null;
+      const href = logo.getAttribute('href');
+      if (href && href.startsWith('#')) { history.replaceState(null, '', href); window.scrollTo({ top: 0, behavior: 'smooth' }); } else location.href = href;
+    }, 320);
+  });
+  logo.addEventListener('dblclick', e => e.preventDefault());
 }
 
 export function applyCommon() {
@@ -173,7 +197,15 @@ export function applyCommon() {
   ['#navArma', '#heroArma', '#bandArma'].forEach(i => { const e = $(i); if (e) e.href = arma; });
   const wa = waLink(s.whatsapp, 'Hola Terromadas! Quiero hacer una consulta.');
   ['#fab', '#footWa', '#footWaIc'].forEach(i => { const e = $(i); if (e) e.href = wa; });
-  if (handle(s.instagram)) social('#footIg', 'https://instagram.com/' + handle(s.instagram));
+  const ig = handle(s.instagram) || handle(CONFIG.defaults.instagram);
+  if (ig) social('#footIg', 'https://instagram.com/' + ig);
+  const fis = $('#footFiscalBox');
+  if (fis) {
+    setText('#footFiscal', s.fiscal);
+    const fl = $('#footFiscalLink'), okUrl = /^https:\/\//i.test(s.dataFiscalUrl || '');
+    if (fl) { fl.hidden = !okUrl; if (okUrl) fl.href = s.dataFiscalUrl; }
+    fis.hidden = !(s.fiscal || okUrl);
+  }
   if (handle(s.facebook)) social('#footFb', 'https://facebook.com/' + handle(s.facebook));
   if (handle(s.tiktok)) social('#footTk', 'https://tiktok.com/@' + handle(s.tiktok));
   if (s.email) { const m = $('#footMail'); m.href = 'mailto:' + s.email; m.textContent = s.email; m.hidden = false; }

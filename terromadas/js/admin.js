@@ -1,6 +1,10 @@
 import { CONFIG } from './config.js';
 import { store, isDemo } from './store.js';
-import { h, $, fmtPrice, safeImg, toast, uid } from './dom.js';
+import { h, $, fmtPrice, safeImg, uid } from './dom.js';
+import { confirmDlg, successDlg, errorDlg } from './dialog.js';
+
+// Todos los avisos del panel salen como ventana modal: los de éxito se cierran solos, los de error esperan el "Entendido".
+const toast = (msg, kind = '') => (kind === 'err' ? errorDlg('Atención', msg) : successDlg(msg));
 
 const app = $('#app');
 let packages = [];
@@ -55,14 +59,17 @@ function loginError(ex) {
 }
 
 /* ---------- login ---------- */
+let fails = 0, lockUntil = 0;
 function showLogin() {
   const email = h('input', { type: 'email', id: 'em', autocomplete: 'username', required: true, placeholder: 'correo@ejemplo.com' });
   const pw = h('input', { type: 'password', id: 'pw', autocomplete: 'current-password', required: true });
   const err = h('div', { class: 'toast err', hidden: true, role: 'alert' });
   const form = h('form', { class: 'lbox', onsubmit: async e => {
     e.preventDefault(); err.hidden = true;
-    try { await store.login(email.value.trim(), pw.value); if (isDemo) showPanel(); }
-    catch (ex) { err.textContent = isDemo ? ex.message : loginError(ex); err.hidden = false; pw.value = ''; }
+    const wait = Math.ceil((lockUntil - Date.now()) / 1000);
+    if (wait > 0) { err.textContent = `Demasiados intentos. Esperá ${wait} segundos para volver a probar.`; err.hidden = false; return; }
+    try { await store.login(email.value.trim(), pw.value); fails = 0; if (isDemo) showPanel(); }
+    catch (ex) { if (++fails >= 5) { lockUntil = Date.now() + 60000; fails = 0; } err.textContent = isDemo ? ex.message : loginError(ex); err.hidden = false; pw.value = ''; }
   } },
     h('h1', {}, 'Panel de Terromadas'),
     isDemo ? h('div', { class: 'demo-note' }, 'MODO DEMO: los datos se guardan solo en este navegador. Contraseña: ', h('b', {}, CONFIG.demoPassword)) : null,
@@ -88,7 +95,7 @@ function renderPanel() {
     h('header', { class: 'top' }, h('div', { class: 'wrap' }, h('b', {}, 'Terromadas · Panel'),
       h('div', { style: 'display:flex;gap:8px' },
         h('a', { class: 'btn btn-line', href: 'index.html', target: '_blank', style: 'color:#fff' }, 'Ver sitio'),
-        h('button', { class: 'btn btn-clay', onclick: () => store.logout().then(() => !isDemo || showLogin()) }, 'Salir')))),
+        h('button', { class: 'btn btn-clay', onclick: async () => { if (await confirmDlg({ title: '¿Salir del panel?', message: 'Vas a tener que ingresar de nuevo con tu correo y contraseña.', yes: 'Salir', no: 'Quedarme' })) store.logout().then(() => !isDemo || showLogin()); } }, 'Salir')))),
     h('main', { class: 'wrap', style: 'padding-bottom:60px' },
       h('div', { class: 'tabs', role: 'tablist' }, tabs.map(([k, l]) => h('button', { role: 'tab', 'aria-selected': tab === k, onclick: () => { tab = k; renderPanel(); } }, l))),
       tab === 'paquetes' ? viewPackages() : viewSettings()));
@@ -159,7 +166,7 @@ function setStatus(p, status) {
 }
 
 async function del(p) {
-  if (!confirm(`¿Eliminar "${p.title}" definitivamente?\n\nSi solo querés que no se vea, usá "Guardar sin mostrar".`)) return;
+  if (!await confirmDlg({ kind: 'err', title: '¿Eliminar este paquete?', message: `"${p.title}" se borra definitivamente y no se puede recuperar.\n\nSi solo querés que no se vea en el sitio, usá "Guardar sin mostrar".`, yes: 'Sí, eliminar', no: 'No, volver', danger: true })) return;
   try { await store.deletePackage(p.id); packages = packages.filter(x => x.id !== p.id); renderPanel(); toast('Paquete eliminado'); }
   catch (e) { toast('No se pudo eliminar: ' + e.message, 'err'); }
 }
@@ -222,7 +229,7 @@ async function openForm(pkg, defCat) {
       if (changed) out.thumb = photos[0] ? await toDataUrl(photos[0], 420, .62) : '';
       await store.savePackage(out, changed ? photos : undefined);
       const i = packages.findIndex(x => x.id === out.id); if (i >= 0) packages[i] = out; else packages.push(out);
-      ptab = out.category || ptab; close(); renderPanel(); toast('Paquete guardado ✔');
+      ptab = out.category || ptab; close(); renderPanel(); toast(isNew ? 'Paquete agregado ✔' : 'Paquete guardado ✔');
     } catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); save.disabled = false; save.textContent = 'Guardar paquete'; }
   } },
     h('h2', { style: 'font-size:26px' }, isNew ? 'Nuevo paquete' : 'Editar paquete'),
@@ -282,6 +289,7 @@ function viewSettings() {
     if (s.armaUrl && !/^https?:\/\//i.test(s.armaUrl)) return toast('El link de "Armá tu viaje" debe empezar con https://', 'err');
     for (const n of [1, 2, 3, 4]) if (s['q15Url' + n] && !/^(https:\/\/|docs\/)/i.test(s['q15Url' + n])) return toast(`El link del documento ${n} tiene que empezar con https:// (o con docs/ si el archivo está dentro del sitio)`, 'err');
     for (const n of [1, 2, 3, 4]) if (s['q15ImgUrl' + n] && !/^https:\/\//i.test(s['q15ImgUrl' + n])) return toast(`El link de la foto del documento ${n} tiene que empezar con https://`, 'err');
+    if (s.dataFiscalUrl && !/^https:\/\//i.test(s.dataFiscalUrl)) return toast('El link de Data Fiscal debe empezar con https://', 'err');
     try { await store.saveSettings({ ...s, whatsapp: String(s.whatsapp).replace(/\D/g, '') }); settings = s; toast('Ajustes guardados ✔'); }
     catch (ex) { toast('No se pudo guardar: ' + ex.message, 'err'); }
   } },
@@ -298,7 +306,7 @@ function viewSettings() {
     mk('address', 'Dirección de la agencia'),
     mk('hours', 'Horario de atención'),
     mk('legajo', 'Legajo o habilitación (ej: Legajo RNAV 19334)'),
-    mk('instagram', 'Instagram (usuario)', { placeholder: 'terromadas' }),
+    mk('instagram', 'Instagram (usuario)', { placeholder: 'terromadas.viajesyturismo' }),
     mk('facebook', 'Facebook (usuario o página, opcional)'),
     mk('tiktok', 'TikTok (usuario, opcional)'),
     mk('q15Title', 'Banner "Viajes de 15": título', { maxlength: 60 }),
@@ -306,12 +314,31 @@ function viewSettings() {
     ...[1, 2, 3, 4].map(docCard),
     h('div', { class: 'fld' }, h('label', {}, 'Banner de quince: al tocar una tarjeta'),
       h('select', { onchange: e => { s.q15Mode = e.target.value; } }, [['ver', 'Abrir el PDF para verlo (recomendado)'], ['descargar', 'Descargar el PDF directamente']].map(([v, l]) => h('option', { value: v, selected: (s.q15Mode || 'ver') === v }, l)))),
+    mk('fiscal', 'Datos fiscales (pie de página)', { maxlength: 160, placeholder: 'Razón social · CUIT 00-00000000-0' }, 'Se muestra al lado del sello de calidad. Dejalo vacío si no querés mostrarlo'),
+    mk('dataFiscalUrl', 'Link de Data Fiscal (ARCA/AFIP, opcional)', { type: 'url', placeholder: 'https://qr.afip.gob.ar/?qr=...' }, 'Pegá el link del código QR de Data Fiscal. Aparece como botón "Data fiscal"'),
     mk('email', 'Email de contacto (opcional)', { type: 'email' }),
     mk('city', 'Ciudad / zona (opcional)'),
     h('div', { class: 'fld' }, h('label', {}, 'Foto de la titular, sección Nosotros (opcional)'), aboutFile, aboutPrev),
     h('button', { class: 'btn btn-clay', type: 'submit', style: 'justify-self:start' }, 'Guardar ajustes'),
-    isDemo ? h('button', { class: 'sm', type: 'button', onclick: async () => { if (confirm('¿Volver a los datos de ejemplo?')) { await store.resetDemo(); showPanel(); } } }, 'Reiniciar datos de ejemplo (demo)') : null);
+    isDemo ? h('button', { class: 'sm', type: 'button', onclick: async () => { if (await confirmDlg({ title: '¿Volver a los datos de ejemplo?', message: 'Se pierden los cambios hechos en este navegador.', yes: 'Sí, reiniciar', no: 'Cancelar', danger: true })) { await store.resetDemo(); showPanel(); } } }, 'Reiniciar datos de ejemplo (demo)') : null);
 }
 
 /* ---------- arranque ---------- */
-store.onAuth(user => { if (user) showPanel(); else showLogin(); });
+/* ---------- protección de la ruta ---------- */
+// Sin actividad por 20 minutos se cierra la sesión; al volver con "atrás" desde otra página no se muestra el panel guardado en memoria.
+let idleT = null, signedIn = false;
+const IDLE_MS = 20 * 60 * 1000;
+function armIdle() {
+  clearTimeout(idleT);
+  if (!signedIn) return;
+  idleT = setTimeout(async () => {
+    signedIn = false;
+    await store.logout().catch(() => {});
+    if (isDemo) showLogin();
+    errorDlg('Sesión cerrada', 'Pasaron 20 minutos sin actividad. Ingresá de nuevo para seguir.');
+  }, IDLE_MS);
+}
+['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(ev => addEventListener(ev, armIdle, { passive: true }));
+addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+
+store.onAuth(user => { signedIn = !!user; armIdle(); if (user) showPanel(); else showLogin(); });
