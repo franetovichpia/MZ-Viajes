@@ -636,7 +636,7 @@ html:not(.no-intro) .search{animation-delay:3.05s}
 @media(prefers-reduced-motion:reduce){.dlg,.dbox,.dico.ok path{animation:none}.dico.ok path{stroke-dashoffset:0}}
 .logo{-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .foot-cred{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;border-top:1px solid #ffffff22;margin-top:14px;padding-top:20px}
-footer .sello{height:92px;width:auto;margin-top:18px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+footer .sello{height:104px;width:104px;object-fit:contain;margin-top:18px;padding:5px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .foot-cred .fiscal{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;font-size:13px;color:#e9cfcb;line-height:1.45}
 .foot-cred .fiscal span{display:block}
 .foot-cred a.dfiscal{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid #ffffff55;border-radius:10px;color:#fff;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;transition:background .2s,transform .2s}
