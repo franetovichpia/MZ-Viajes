@@ -9,6 +9,11 @@
       "firebase.json",
       "firestore.rules",
       "README.md",
+      "vercel.json",
+      ".vercelignore",
+      "scripts/**",
+      "worker/**",
+      "data/**",
       "**/.*",
       "**/node_modules/**"
     ],
