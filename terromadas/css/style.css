@@ -19,7 +19,7 @@ svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke
 .nav{position:sticky;top:0;z-index:50;background:rgba(255,248,238,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:92px;gap:16px}
 .logo{display:block;text-decoration:none}
-.brandimg{display:block;height:var(--h,76px);width:auto;margin-inline:calc(var(--h,76px) * -.27)}
+.brandimg{display:block;height:var(--h,76px);width:calc(var(--h,76px) * var(--r,2.0909));max-width:none;flex:none;margin-inline:calc(var(--h,76px) * -.27)}
 .menu{display:flex;gap:28px;align-items:center}
 .menu a{text-decoration:none;font-size:15px;font-weight:700}
 .menu a:not(.btn):hover{color:var(--red)}
