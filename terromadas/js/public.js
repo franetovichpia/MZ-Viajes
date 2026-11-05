@@ -8,7 +8,7 @@ let sel = '';
 /* ---------- "¿A dónde te gustaría viajar?": Destacados (8) y un filtro por destino (4 + "Ver más") ---------- */
 function renderDestinos() {
   const feat = featured();
-  const tabs = [...(feat.length ? [FEATURED] : []), ...CONFIG.categories.filter(c => visible(c).length)];
+  const tabs = [...(feat.length ? [FEATURED] : []), ...CONFIG.categories];
   if (!tabs.includes(sel)) sel = tabs[0] || '';
   $('#vidFilters').replaceChildren(...tabs.map(c =>
     h('button', { class: 'fchip', type: 'button', 'aria-pressed': sel === c, onclick: () => { sel = c; renderDestinos(); } }, c)));
@@ -17,6 +17,7 @@ function renderDestinos() {
   if (!sel) { vc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Estamos actualizando nuestros paquetes. Escribinos por WhatsApp y te asesoramos.')); return; }
   if (sel === FEATURED) { feat.forEach(p => vc.append(card(p, true))); reveal(vc); return; }
   const all = visible(sel);
+  if (!all.length) { vc.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, 'Por el momento no hay paquetes cargados.')); return; }
   all.slice(0, 4).forEach(p => vc.append(card(p)));
   reveal(vc);
   more.append(h('a', { class: 'btn btn-red', href: destinoUrl(sel) }, `Ver más de ${sel}${all.length > 4 ? ` (${all.length})` : ''}`));
