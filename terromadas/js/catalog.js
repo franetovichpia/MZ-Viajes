@@ -9,7 +9,7 @@ export const trip = { date: '', pax: '2' };
 let lastFocus = null;
 
 export const waNumber = () => state.settings.whatsapp;
-export const catOf = c => (CONFIG.categories.includes(c) ? c : '');
+export const catOf = c => (CONFIG.categories.includes(c) ? c : (CONFIG.categoryAliases && CONFIG.categoryAliases[c]) || '');
 export const FEATURED = 'Destacados';
 // Sin ".html": con URLs limpias el servidor redirige destino.html y perdería el ?tipo=
 export const destinoUrl = cat => 'destino?tipo=' + encodeURIComponent(cat);
@@ -121,7 +121,7 @@ export async function openModal(id) {
     gal,
     h('div', { class: 'det' },
       h('div', {},
-        h('div', { class: 'dest' }, [p.destination, p.category].filter(Boolean).join(' · ')),
+        h('div', { class: 'dest' }, [p.destination, catOf(p.category) || p.category].filter(Boolean).join(' · ')),
         h('h2', { id: 'mTitle' }, p.title),
         h('div', { class: 'meta' }, p.duration ? h('span', {}, '🗓 ' + p.duration) : null),
         p.description ? h('p', { style: 'margin-top:14px;color:#5c4744' }, p.description) : null,

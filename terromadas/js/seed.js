@@ -32,7 +32,7 @@ export const SEED_PACKAGES = [
   mk('demo10', { featured: true, category: 'Salidas grupales', title: 'Salida grupal a Camboriú', destination: 'Balneário Camboriú, Brasil', duration: '9 días', dates: ['08/01/2027 al 17/01/2027'], price: 780000, oldPrice: 850000,
     description: 'Viajamos en grupo con coordinador, hotel frente a la playa y excursiones opcionales.',
     includes: ['Bus ida y vuelta', '8 noches de hotel', 'Coordinador', 'Seguro de viaje'], thumb: scene('#f7b98a', '#fff3da', '#d2693b') }),
-  mk('demo6', { featured: true, category: 'Brasil', title: 'Río de Janeiro', destination: 'Río de Janeiro, Brasil', duration: '7 noches', dates: ['06/02/2027 al 13/02/2027'], price: 1250000, status: 'soldout',
+  mk('demo6', { featured: true, category: 'Brasil aéreo', title: 'Río de Janeiro', destination: 'Río de Janeiro, Brasil', duration: '7 noches', dates: ['06/02/2027 al 13/02/2027'], price: 1250000, status: 'soldout',
     description: 'Playa, Pan de Azúcar y Cristo Redentor.',
     includes: ['Aéreo', '7 noches con desayuno', 'Traslados', 'City tour'], thumb: scene('#7fd0c8', '#fff3c4', '#2f7a6f') }),
   mk('demo7', { category: 'Argentina', title: 'El Calafate y Perito Moreno', destination: 'El Calafate, Santa Cruz', duration: '4 noches', dates: ['10/03/2027 al 14/03/2027'], price: 980000, status: 'paused',

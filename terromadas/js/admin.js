@@ -13,7 +13,7 @@ let tab = 'paquetes';
 
 const MAX = CONFIG.maxPerCategory;
 const PHOTO_BUDGET = 850000; // caracteres base64 por paquete (límite de Firestore: 1 MB por documento)
-const catOf = c => (CONFIG.categories.includes(c) ? c : '');
+const catOf = c => (CONFIG.categories.includes(c) ? c : (CONFIG.categoryAliases && CONFIG.categoryAliases[c]) || '');
 const shown = (cat, ex) => packages.filter(p => catOf(p.category) === cat && p.status !== 'paused' && p.id !== ex);
 const full = (cat, ex) => !!catOf(cat) && shown(catOf(cat), ex).length >= MAX;
 const MAXF = CONFIG.maxFeatured;
@@ -145,7 +145,7 @@ function rowFor(p) {
   return h('div', { class: 'row' },
     safeImg(p.thumb) ? h('img', { src: p.thumb, alt: '' }) : h('div', { style: 'width:84px;height:64px;background:var(--sand2);border-radius:8px' }),
     h('div', {}, h('h3', {}, p.title), h('div', { class: 'sub' }, `${p.destination || '—'} · ${p.duration || '—'} · ${fmtPrice(p.price, p.currency)}`),
-      h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), h('span', { class: 'chip offer' }, p.category || 'Sin tipo'), p.featured ? h('span', { class: 'chip offer' }, '★ Destacado') : null)),
+      h('div', { class: 'chips' }, h('span', { class: 'chip ' + st[1] }, st[0]), h('span', { class: 'chip offer' }, catOf(p.category) || p.category || 'Sin tipo'), p.featured ? h('span', { class: 'chip offer' }, '★ Destacado') : null)),
     h('div', { class: 'acts' },
       p.status !== 'paused' ? h('button', { class: p.featured ? 'sm vid on' : 'sm vid', onclick: () => toggleFeatured(p) }, p.featured ? 'Quitar de destacados' : '★ Destacar') : null,
       h('button', { class: 'sm edit', onclick: () => openForm(p) }, 'Editar'),
@@ -195,7 +195,7 @@ async function openForm(pkg, defCat) {
     dates: h('textarea', { placeholder: '12/12/2026 al 19/12/2026\n09/01/2027 al 16/01/2027' }, (p.dates || []).join('\n')),
     description: h('textarea', { maxlength: 1200 }, p.description || ''),
     includes: h('textarea', { placeholder: 'Aéreo ida y vuelta\nTraslados\n7 noches de hotel' }, (p.includes || []).join('\n')),
-    category: h('select', { required: true }, [h('option', { value: '' }, 'Elegí un tipo…'), ...CONFIG.categories.map(c => h('option', { value: c, selected: p.category === c }, c))]),
+    category: h('select', { required: true }, [h('option', { value: '' }, 'Elegí un tipo…'), ...CONFIG.categories.map(c => h('option', { value: c, selected: catOf(p.category) === c }, c))]),
     featured: h('input', { type: 'checkbox', checked: !!p.featured, id: 'featchk' }),
     status: h('select', {}, [['active', 'Disponible'], ['paused', 'Guardado (no se muestra en el sitio)'], ['soldout', 'Agotado']].map(([v, l]) => h('option', { value: v, selected: p.status === v }, l)))
   };

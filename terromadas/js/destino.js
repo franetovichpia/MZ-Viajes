@@ -1,13 +1,13 @@
 import { CONFIG } from './config.js';
 import { initAnim, reveal } from './anim.js';
 import { h, $ } from './dom.js';
-import { visible, card, destinoUrl, openModal, loadCatalog, loadFromCache, initChrome, applyCommon, mountContactForm } from './catalog.js';
+import { catOf, visible, card, destinoUrl, openModal, loadCatalog, loadFromCache, initChrome, applyCommon, mountContactForm } from './catalog.js';
 
 async function init() {
   initChrome();
   initAnim();
-  const tipo = new URLSearchParams(location.search).get('tipo');
-  const ok = CONFIG.categories.includes(tipo);
+  const tipo = catOf(new URLSearchParams(location.search).get('tipo'));
+  const ok = !!tipo;
   const paint = () => {
     applyCommon();
     const list = ok ? visible(tipo) : [];
